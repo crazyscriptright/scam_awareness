@@ -1,0 +1,351 @@
+-- Step 1: Create the table
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    dob DATE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Step 2: Create the trigger function
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 3: Create the trigger
+CREATE TRIGGER update_users_updated_at
+BEFORE UPDATE ON users
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+
+
+#######################
+
+
+CREATE TABLE scam_reports (
+    report_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    scam_type VARCHAR(50) NOT NULL CHECK (scam_type IN (
+        'Investment',
+        'Romance scams',
+        'Product and service scams',
+        'Threats and extortion scams',
+        'Jobs and employment scams',
+        'Unexpected money',
+        'Phishing',
+        'Buying or selling scams',
+        'Other'
+    )),
+    description TEXT NOT NULL,
+    scam_date DATE NOT NULL,
+    report_status VARCHAR(50) DEFAULT 'Submitted' NOT NULL CHECK (report_status IN (
+        'Submitted',
+        'Pending',
+        'In Progress',
+        'Waiting for Update',
+        'Under Review',
+        'Escalated',
+        'Resolved',
+        'Closed',
+        'On Hold',
+        'Cancelled'
+    )),
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    proof BYTEA,
+    last_modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+
+-- Step 2: Create the trigger function
+CREATE OR REPLACE FUNCTION update_last_modified()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_modified = CURRENT_TIMESTAMP;  -- Update the last_modified field to the current timestamp
+    RETURN NEW;  -- Return the modified record
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 3: Create the trigger
+CREATE TRIGGER set_last_modified
+BEFORE UPDATE ON scam_reports
+FOR EACH ROW
+EXECUTE FUNCTION update_last_modified();
+
+-- update the cancellation 
+-- Step 1: Create the trigger function
+CREATE OR REPLACE FUNCTION update_status_in_related_tables()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if the report_status is being set to 'Cancelled'
+    IF NEW.report_status = 'Cancelled' THEN
+        -- Update the report_status in admin_approval if there is a corresponding verification_id
+        UPDATE admin_approval
+        SET report_status = 'Cancelled'
+        WHERE report_id = NEW.report_id
+          AND verification_id IS NOT NULL;  -- Ensure there is a verification_id
+
+        -- Update the report_status in external_resources if there is a corresponding external_resource_id
+        UPDATE external_resources
+        SET report_status = 'Cancelled'
+        WHERE verification_id = (
+            SELECT verification_id
+            FROM admin_approval
+            WHERE report_id = NEW.report_id
+            AND verification_id IS NOT NULL
+        );
+    END IF;
+
+    -- Return the new record
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 2: Create the trigger
+CREATE TRIGGER update_status_trigger
+AFTER UPDATE ON scam_reports
+FOR EACH ROW
+EXECUTE FUNCTION update_status_in_related_tables();
+
+#########################
+
+CREATE TABLE contacts (
+    contact_id SERIAL PRIMARY KEY,  -- Primary key for the contacts table
+    user_id INT NOT NULL,            -- Foreign key referencing the users table
+    message TEXT NOT NULL,           -- Message content
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for when the message was submitted
+    attachment BYTEA,                 -- Path to the attachment file (or you can use BYTEA for binary data)
+    FOREIGN KEY (user_id) REFERENCES users(user_id)  -- Foreign key constraint
+);
+
+#####################################
+
+CREATE TABLE admin_approval (
+    verification_id SERIAL PRIMARY KEY,  -- Primary key for the admin approval table
+    report_id INT NOT NULL UNIQUE,,               -- Foreign key referencing the reports table
+    report_status VARCHAR(50) DEFAULT 'Submitted' NOT NULL CHECK (report_status IN (
+        'Submitted',
+        'Pending',
+        'In Progress',
+        'Waiting for Update',
+        'Under Review',
+        'Escalated',
+        'Resolved',
+        'Closed',
+        'On Hold',
+        'Cancelled'
+    )),                                   -- Status of the report
+    verification_notes TEXT,               -- Notes regarding the verification
+    verified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Timestamp for when the report was verified
+    severity VARCHAR(10) CHECK (severity IN ('high', 'medium', 'low')),  -- Severity level
+    FOREIGN KEY (report_id) REFERENCES scam_reports(report_id)  -- Foreign key constraint
+);
+
+
+-- Create the trigger function
+CREATE OR REPLACE FUNCTION update_report_status_from_admin_approval()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update the report_status in scam_reports table when admin approval status changes
+    UPDATE scam_reports
+    SET report_status = NEW.report_status
+    WHERE report_id = NEW.report_id;
+    
+    -- Return the new record to complete the update
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER trigger_update_report_status
+BEFORE UPDATE ON admin_approval
+FOR EACH ROW
+WHEN (OLD.report_status IS DISTINCT FROM NEW.report_status)  -- Ensure the status has changed
+EXECUTE FUNCTION update_report_status_from_admin_approval();
+-- Update or create the trigger function
+CREATE OR REPLACE FUNCTION update_report_status_from_admin_approval()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- For INSERT operations, update the report_status in the scam_reports table
+    IF TG_OP = 'INSERT' THEN
+        UPDATE scam_reports
+        SET report_status = NEW.report_status
+        WHERE report_id = NEW.report_id;
+    END IF;
+
+    -- For UPDATE operations, update the report_status in the scam_reports table if it changes
+    IF TG_OP = 'UPDATE' AND OLD.report_status IS DISTINCT FROM NEW.report_status THEN
+        UPDATE scam_reports
+        SET report_status = NEW.report_status
+        WHERE report_id = NEW.report_id;
+    END IF;
+
+    -- Return the new record to complete the operation
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Drop the existing trigger if it exists
+DROP TRIGGER IF EXISTS trigger_update_report_status ON admin_approval;
+
+-- Create a new trigger for both INSERT and UPDATE operations
+CREATE TRIGGER trigger_update_report_status
+AFTER INSERT OR UPDATE ON admin_approval
+FOR EACH ROW
+EXECUTE FUNCTION update_report_status_from_admin_approval();
+
+
+
+//view to display only report_status is Submitted
+CREATE OR REPLACE VIEW submitted_scam_reports AS
+SELECT 
+    report_id,
+    user_id,
+    scam_type,
+    description,
+    scam_date,
+    report_status,
+    submitted_at,
+    proof
+FROM 
+    scam_reports
+WHERE 
+    report_status = 'Submitted';
+
+
+##############################
+
+
+CREATE TABLE external_resources (
+    external_resources_id SERIAL PRIMARY KEY,
+    verification_id INT REFERENCES admin_approval(verification_id),
+    report_status VARCHAR(50),
+    assigned_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    external_notes TEXT,
+    completion_time TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION update_completion_time()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.report_status = 'Completed' THEN
+        NEW.completion_time = CURRENT_TIMESTAMP;  -- Set completion_time to current timestamp
+    ELSE
+        NEW.completion_time = NULL;  -- Reset completion_time if not completed
+    END IF;
+    RETURN NEW;  -- Return the modified record
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_completion_time
+BEFORE UPDATE OF report_status ON external_resources
+FOR EACH ROW
+EXECUTE FUNCTION update_completion_time();
+
+--updating admin_approval 
+
+CREATE OR REPLACE FUNCTION update_admin_approval()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update the admin_approval table based on the report_status change
+    UPDATE admin_approval
+    SET report_status = NEW.report_status
+    WHERE verification_id = NEW.verification_id;
+    RETURN NEW;  -- Return the modified record
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_admin_approval_status
+AFTER UPDATE OF report_status ON external_resources
+FOR EACH ROW
+EXECUTE FUNCTION update_admin_approval();-- Step 1: Create the trigger function
+CREATE OR REPLACE FUNCTION update_report_status_from_external_resources()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- For INSERT operations, update the report_status in the admin_approval table
+    IF TG_OP = 'INSERT' THEN
+        UPDATE admin_approval
+        SET report_status = NEW.report_status
+        WHERE verification_id = NEW.verification_id;  -- Assuming verified_id is the foreign key in external_resources
+    END IF;
+
+    -- For UPDATE operations, update the report_status in the admin_approval table if it changes
+    IF TG_OP = 'UPDATE' AND OLD.report_status IS DISTINCT FROM NEW.report_status THEN
+        UPDATE admin_approval
+        SET report_status = NEW.report_status
+        WHERE verification_id = NEW.verification_id;  -- Assuming verified_id is the foreign key in external_resources
+    END IF;
+
+    -- Return the new record to complete the operation
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 2: Drop the existing trigger if it exists
+DROP TRIGGER IF EXISTS trigger_update_report_status ON external_resources;
+
+-- Step 3: Create a new trigger for both INSERT and UPDATE operations
+CREATE TRIGGER trigger_update_report_status
+AFTER INSERT OR UPDATE ON external_resources
+FOR EACH ROW
+EXECUTE FUNCTION update_report_status_from_external_resources();
+
+
+
+-- Create a view to display the filtered data
+CREATE OR REPLACE VIEW scam_report_details AS
+SELECT 
+    sr.report_id,
+    sr.user_id,
+    sr.scam_type,
+    sr.description,
+    sr.scam_date,
+    sr.report_status AS scam_report_status,
+    sr.submitted_at,
+    sr.proof,
+    aa.verification_id,
+    aa.report_status AS admin_approval_status,
+    aa.verification_notes,
+    aa.verified_at,
+    aa.severity
+FROM 
+    scam_reports sr
+LEFT JOIN 
+    admin_approval aa ON sr.report_id = aa.report_id
+WHERE 
+    sr.report_status NOT IN ('Pending', 'Cancelled') 
+    AND (aa.report_status IS NULL OR aa.report_status NOT IN ('Pending', 'Cancelled'));
+
+
+
+###########################3
+
+CREATE TABLE quiz (
+    quiz_id SERIAL PRIMARY KEY,      -- Unique ID for each quiz
+    q1 TEXT NOT NULL,               -- First question, required
+    q2 TEXT,                        -- Second question, optional
+    q3 TEXT,                        -- Third question, optional
+    q4 TEXT,                        -- Fourth question, optional
+    answer TEXT NOT NULL CHECK (answer IN ('scam', 'safe')) -- Must be either 'scam' or 'safe'
+);
+
+#############################
+
+CREATE TABLE news_alert (
+    news_id SERIAL PRIMARY KEY,          -- Unique ID for each news alert
+    title VARCHAR(255) NOT NULL,        -- Title of the news alert
+    description TEXT NOT NULL,          -- Description of the news alert
+    alert_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Alert date, defaults to current timestamp
+    image_path BYTEA                     -- Image path stored as binary data
+);
+
+
+###################################
+
