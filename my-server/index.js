@@ -3,7 +3,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const multer = require('multer');
+// const multer = require('multer');
 const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
