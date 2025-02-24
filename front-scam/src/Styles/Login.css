@@ -1,0 +1,132 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.login-container:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+}
+
+.login-header h1 {
+    margin: 0;
+    font-size: 2.5em;
+    color: #6e8efb;
+}
+
+.login-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #a777e3;
+    margin-bottom: 20px;
+}
+
+.login-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container label {
+    width: 100%;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.login-container input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease;
+}
+
+.login-container input:focus {
+    border-color: #6e8efb;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #6e8efb;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-container button:hover {
+    background-color: #a777e3;
+}
+
+.login-container p {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-container p.success {
+    color: green;
+}
+
+.login-container p.error {
+    color: red;
+}
+
+.login-container .links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.login-container .links a {
+    color: #6e8efb;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.login-container .links a:hover {
+    color: #a777e3;
+}
+
+@media (max-width: 600px) {
+    .login-container {
+        padding: 10px;
+    }
+
+    .login-container input {
+        padding: 8px;
+    }
+
+    .login-container button {
+        padding: 8px;
+    }
+
+    .login-container .links {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-container .links a {
+        margin-bottom: 10px;
+    }
+}

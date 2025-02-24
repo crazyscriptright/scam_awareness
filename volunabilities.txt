@@ -1,0 +1,12 @@
+Brute Force Protection Test
+Cross-Site Scripting (XSS)
+ Check for Broken Access Control
+Security Misconfiguration
+Cross-Site Request Forgery (CSRF)
+No Logging & Monitoring
+ Weak Session Management
+ No Account Lockout Mechanism
+ No Protection Against Clickjacking
+Security Headers Missing
+ No Content Security Policy (CSP)
+No API Rate Limiting

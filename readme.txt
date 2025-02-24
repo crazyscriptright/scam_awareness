@@ -9,3 +9,27 @@ npx create-react-app login-form
 cd login-form
 npm install axios react-router-dom sweetalert2 web-vitals
 npm start
+
+
+
+
+git init
+git remote add origin <repository clone link>
+git add .
+git config --global user.email "crazyscriptright@gmail.com"
+git commit -m "commit"
+git push origin master
+
+ create a new repository on the command line
+echo "# Violence_detection_model" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/crazyscriptright/Violence_detection_model.git
+git push -u origin main
+
+push an existing repository from the command line
+git remote add origin https://github.com/crazyscriptright/Violence_detection_model.git
+git branch -M main
+git push -u origin main
