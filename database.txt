@@ -5,10 +5,10 @@ CREATE TABLE users (
     dob DATE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    profile_picture BYTEA DEFAULT NULL, -- New column for profile picture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 -- Step 2: Create the trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -349,3 +349,12 @@ CREATE TABLE news_alert (
 
 ###################################
 
+CREATE TABLE session (
+  sid VARCHAR NOT NULL PRIMARY KEY,
+  sess JSON NOT NULL,
+  expire TIMESTAMP(6) NOT NULL
+);
+CREATE INDEX idx_session_expire ON session (expire);
+
+
+#############################

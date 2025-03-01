@@ -10,3 +10,4 @@ No Logging & Monitoring
 Security Headers Missing
  No Content Security Policy (CSP)
 No API Rate Limiting
+DDos

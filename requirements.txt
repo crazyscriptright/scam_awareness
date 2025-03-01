@@ -2,3 +2,16 @@ express
 pg
 cors
 framer-motion
+dotenv
+express-rate-limit
+helmet
+multer
+csurf
+morgan
+express-session
+axios
+compression
+cookie-parser
+express-async-handler
+winston
+express-validator

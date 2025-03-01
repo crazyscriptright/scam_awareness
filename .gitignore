@@ -1,3 +1,3 @@
-.env
-my-server/node_modules
+my-server/.env
 front-scam/node_modules
+my-server/node_modules

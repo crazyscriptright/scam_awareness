@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FaTachometerAlt, FaUsers, FaShieldAlt, FaCog, FaChartBar, FaUserShield, FaComments, FaEnvelope, FaClipboardList, FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
 import 'tailwindcss/tailwind.css';
+import WithAuth from "../hooks/WithAuth"; // Corrected import path
+
 
 const AdminNavbar = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -37,52 +40,52 @@ const AdminNavbar = () => {
                 </div>
                 <nav className="mt-10">
                     <Link to="/admin/analytics" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        Analytics
+                        <FaChartBar className="inline-block mr-2 text-blue-500" /> Analytics
                     </Link>
                     <Link to="/admin/users" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        User Management
+                        <FaUsers className="inline-block mr-2 text-green-500" /> User Management
                     </Link>
                     <Link to="/admin/complaints" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        Complaints
+                        <FaClipboardList className="inline-block mr-2 text-yellow-500" /> Complaints
                     </Link>
                     <Link to="/admin/review" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        Review
+                        <FaShieldAlt className="inline-block mr-2 text-red-500" /> Review
                     </Link>
                     <div>
                         <button onClick={toggleFeedback} className="block w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
-                            Feedback
+                            <FaComments className="inline-block mr-2 text-purple-500" /> Feedback
                         </button>
                         {isFeedbackOpen && (
                             <div className="ml-4">
                                 <Link to="/admin/feedback/contactus" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                                    Contact Us
+                                    <FaEnvelope className="inline-block mr-2 text-pink-500" /> Contact Us
                                 </Link>
                                 <Link to="/admin/feedback/complaints" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                                    Complaints
+                                    <FaClipboardList className="inline-block mr-2 text-yellow-500" /> Complaints
                                 </Link>
                             </div>
                         )}
                     </div>
                     <div>
                         <button onClick={toggleContent} className="block w-full text-left py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white">
-                            Content
+                            <FaCog className="inline-block mr-2 text-gray-500" /> Content
                         </button>
                         {isContentOpen && (
                             <div className="ml-4">
                                 <Link to="/admin/content/resources" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                                    Resources
+                                    <FaClipboardList className="inline-block mr-2 text-yellow-500" /> Resources
                                 </Link>
                                 <Link to="/admin/content/quiz" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                                    Quiz
+                                    <FaQuestionCircle className="inline-block mr-2 text-indigo-500" /> Quiz
                                 </Link>
                             </div>
                         )}
                     </div>
                     <Link to="/admin/settings" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        Settings
+                        <FaCog className="inline-block mr-2 text-gray-500" /> Settings
                     </Link>
                     <Link to="/logout" className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700 hover:text-white" onClick={closeSidebar}>
-                        Logout
+                        <FaSignOutAlt className="inline-block mr-2 text-red-500" /> Logout
                     </Link>
                 </nav>
             </div>
@@ -97,4 +100,4 @@ const AdminNavbar = () => {
     );
 };
 
-export default AdminNavbar;
+export default WithAuth(AdminNavbar);
