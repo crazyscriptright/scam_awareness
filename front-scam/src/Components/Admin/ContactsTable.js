@@ -3,10 +3,14 @@ import axios from "axios";
 import { Table, Button, Modal, message } from "antd";
 import { DownloadOutlined, EyeOutlined } from "@ant-design/icons";
 import { motion } from "framer-motion";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import ReactPlayer from "react-player";
+import ModalImage from "react-modal-image";
+import ReactAudioPlayer from "react-h5-audio-player";
+import "react-h5-audio-player/lib/styles.css";
+import dayjs from "dayjs";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 const ContactsTable = () => {
   const [contacts, setContacts] = useState([]);
@@ -14,6 +18,7 @@ const ContactsTable = () => {
   const [selectedAttachment, setSelectedAttachment] = useState(null);
   const [attachmentType, setAttachmentType] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Fetch contact details from backend
   const fetchContacts = async () => {
@@ -42,14 +47,19 @@ const ContactsTable = () => {
   // Handle viewing an attachment
   const handleViewAttachment = (attachment) => {
     if (attachment) {
-      if (attachment.startsWith("data:image")) {
+      const base64String = `data:application/octet-stream;base64,${attachment}`;
+      if (base64String.startsWith("data:image")) {
         setAttachmentType("image");
-      } else if (attachment.startsWith("data:application/pdf")) {
+      } else if (base64String.startsWith("data:application/pdf")) {
         setAttachmentType("pdf");
+      } else if (base64String.startsWith("data:video")) {
+        setAttachmentType("video");
+      } else if (base64String.startsWith("data:audio")) {
+        setAttachmentType("audio");
       } else {
         setAttachmentType("other");
       }
-      setSelectedAttachment(attachment);
+      setSelectedAttachment(base64String);
       setIsModalVisible(true);
     } else {
       message.info("No attachment available for this contact.");
@@ -59,8 +69,9 @@ const ContactsTable = () => {
   // Handle downloading an attachment
   const handleDownloadAttachment = (attachment) => {
     if (attachment) {
+      const base64String = `data:application/octet-stream;base64,${attachment}`;
       const link = document.createElement("a");
-      link.href = attachment;
+      link.href = base64String;
       link.download = "attachment";
       document.body.appendChild(link);
       link.click();
@@ -95,7 +106,7 @@ const ContactsTable = () => {
       dataIndex: "submitted_at",
       key: "submitted_at",
       sorter: (a, b) => new Date(a.submitted_at) - new Date(b.submitted_at),
-      render: (text) => new Date(text).toLocaleString(),
+      render: (text) => dayjs(text).format("DD/MM/YYYY HH:mm"),
     },
     {
       title: "Attachment",
@@ -143,7 +154,7 @@ const ContactsTable = () => {
         dataSource={contacts}
         rowKey="contact_id"
         loading={loading}
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: 5 }} // Display only 5 rows per page
         scroll={{ x: "max-content" }}
         rowClassName={() => "hover-row"}
       />
@@ -154,20 +165,24 @@ const ContactsTable = () => {
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={null}
-        width={800}
+        width={isMobile ? "90%" : 800}
       >
         {selectedAttachment && (
           <div>
             {attachmentType === "image" ? (
-              <img
-                src={selectedAttachment}
+              <ModalImage
+                small={selectedAttachment}
+                large={selectedAttachment}
                 alt="Attachment"
-                style={{ width: "100%", height: "auto" }}
               />
             ) : attachmentType === "pdf" ? (
-              <Document file={selectedAttachment}>
-                <Page pageNumber={1} />
-              </Document>
+              <Worker workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`}>
+                <Viewer fileUrl={selectedAttachment} />
+              </Worker>
+            ) : attachmentType === "video" ? (
+              <ReactPlayer url={selectedAttachment} controls width="100%" />
+            ) : attachmentType === "audio" ? (
+              <ReactAudioPlayer src={selectedAttachment} autoPlay={false} controls />
             ) : (
               <p>This file type cannot be previewed. Please download it.</p>
             )}
