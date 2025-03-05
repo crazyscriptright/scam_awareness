@@ -2,10 +2,17 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Form, Input, DatePicker, Button, message, Row, Col, Select } from "antd";
 import { motion } from "framer-motion"; // For animations
-import { UserAddOutlined } from "@ant-design/icons"; // For icons
+import { 
+  UserOutlined, 
+  CalendarOutlined, 
+  MailOutlined, 
+  LockOutlined, 
+  IdcardOutlined, 
+  InfoCircleOutlined 
+} from "@ant-design/icons"; // For icons
 
 const { Item } = Form;
-const { Password } = Input;
+const { Password, TextArea } = Input;
 const { Option } = Select;
 
 const UserManagement = () => {
@@ -41,13 +48,14 @@ const UserManagement = () => {
 
   // Handle Block/Unblock User form submission
   const handleBlockUnblockSubmit = async (values) => {
-    const { identifier, status } = values;
+    const { identifier, status, description } = values;
 
     try {
       setBlockUnblockLoading(true);
       const response = await axios.put("http://localhost:5000/api/users/status", {
         identifier: identifier.toLowerCase(), // Convert to lowercase
         status,
+        description, // Optional description
       });
 
       if (response.data) {
@@ -73,21 +81,15 @@ const UserManagement = () => {
       initial={{ opacity: 0, y: -20 }} // Initial animation state
       animate={{ opacity: 1, y: 0 }} // Animate to this state
       transition={{ duration: 0.5 }} // Animation duration
-      style={{ padding: 20 }}
+      className="mt-5"
     >
-      <Row gutter={[24, 24]}>
+      <Row gutter={[24, 24]} className="flex flex-wrap">
         {/* Create External User Column */}
-        <Col xs={24} md={12}>
+        <Col xs={24} md={12} className="w-full md:w-1/2">
           <motion.div
-            style={{
-              padding: 20,
-              borderRadius: 10,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-              background: "white",
-            }}
+            className="p-2 rounded-lg shadow-md bg-white"
           >
-            <h2 style={{ textAlign: "center", marginBottom: 24 }}>
-              <UserAddOutlined style={{ marginRight: 8 }} />
+            <h2 className="text-center text-2xl font-bold mb-6">
               Create External User
             </h2>
 
@@ -99,7 +101,11 @@ const UserManagement = () => {
                 rules={[{ required: true, message: "Please enter the user's name" }]}
               >
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Input placeholder="Enter name" />
+                  <Input 
+                    placeholder="Enter name" 
+                    prefix={<UserOutlined className="text-gray-400" />} 
+                    className="w-full p-2 border rounded"
+                  />
                 </motion.div>
               </Item>
 
@@ -110,7 +116,10 @@ const UserManagement = () => {
                 rules={[{ required: true, message: "Please select the date of birth" }]}
               >
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <DatePicker style={{ width: "100%" }} />
+                  <DatePicker 
+                    className="w-full p-2 border rounded"
+                    suffixIcon={<CalendarOutlined className="text-gray-400" />}
+                  />
                 </motion.div>
               </Item>
 
@@ -126,7 +135,9 @@ const UserManagement = () => {
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <Input
                     placeholder="Enter email"
+                    prefix={<MailOutlined className="text-gray-400" />}
                     onChange={handleEmailChange} // Convert to lowercase as the user types
+                    className="w-full p-2 border rounded"
                   />
                 </motion.div>
               </Item>
@@ -138,7 +149,11 @@ const UserManagement = () => {
                 rules={[{ required: true, message: "Please enter a password" }]}
               >
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                  <Password placeholder="Enter password" />
+                  <Password 
+                    placeholder="Enter password" 
+                    prefix={<LockOutlined className="text-gray-400" />}
+                    className="w-full p-2 border rounded"
+                  />
                 </motion.div>
               </Item>
 
@@ -149,7 +164,7 @@ const UserManagement = () => {
                     type="primary"
                     htmlType="submit"
                     loading={createUserLoading}
-                    style={{ width: "100%", marginTop: 16 }}
+                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
                   >
                     Create External User
                   </Button>
@@ -160,16 +175,11 @@ const UserManagement = () => {
         </Col>
 
         {/* Block/Unblock User Column */}
-        <Col xs={24} md={12}>
+        <Col xs={24} md={12} className="w-full md:w-1/2">
           <motion.div
-            style={{
-              padding: 20,
-              borderRadius: 10,
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-              background: "white",
-            }}
+            className="p-4 rounded-lg shadow-md bg-white"
           >
-            <h2 style={{ textAlign: "center", marginBottom: 20 }}>Block/Unblock User</h2>
+            <h2 className="text-center text-2xl font-bold mb-6">Block/Unblock User</h2>
             <Form form={blockUnblockForm} onFinish={handleBlockUnblockSubmit}>
               {/* Email or User ID Input */}
               <Item
@@ -180,9 +190,11 @@ const UserManagement = () => {
                 <motion.div whileHover={{ scale: 1.02 }}>
                   <Input
                     placeholder="Enter email or user ID"
+                    prefix={<IdcardOutlined className="text-gray-400" />}
                     onChange={(e) =>
                       blockUnblockForm.setFieldsValue({ identifier: e.target.value.toLowerCase() })
                     } // Auto-lowercase
+                    className="w-full p-2 border rounded"
                   />
                 </motion.div>
               </Item>
@@ -193,10 +205,28 @@ const UserManagement = () => {
                 label="Status"
                 rules={[{ required: true, message: "Please select a status" }]}
               >
-                <Select placeholder="Select status" style={{ width: "100%" }}>
+                <Select 
+                  placeholder="Select status" 
+                  className="w-full"
+                  suffixIcon={<InfoCircleOutlined className="text-gray-400" />}
+                >
                   <Option value="active">Active</Option>
                   <Option value="banned">Banned</Option>
                 </Select>
+              </Item>
+
+              {/* Optional Description */}
+              <Item
+                name="description"
+                label="Description"
+              >
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <TextArea
+                    placeholder="Enter description (optional)"
+                    rows={4}
+                    className="w-full p-2 border rounded"
+                  />
+                </motion.div>
               </Item>
 
               {/* Submit Button */}
@@ -206,7 +236,7 @@ const UserManagement = () => {
                     type="primary"
                     htmlType="submit"
                     loading={blockUnblockLoading}
-                    style={{ width: "100%", borderRadius: 8 }}
+                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition"
                   >
                     Update Status
                   </Button>

@@ -17,7 +17,16 @@ git init
 git remote add origin <repository clone link>
 git add .
 git config --global user.email "crazyscriptright@gmail.com"
+git config --global user.name "ANIL SUNNY"
 git commit -m "commit"
+git push origin master
+
+E:
+cd E:\projects\Societal\new_scam_awarenss\my-server
+git add .
+git config --global user.email "crazyscriptright@gmail.com"
+git config --global user.name "ANIL SUNNY"
+git commit -m "Scheduled commit"
 git push origin master
 
  create a new repository on the command line
