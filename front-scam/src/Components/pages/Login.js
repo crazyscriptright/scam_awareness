@@ -40,18 +40,30 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-
+  
+      // Handle successful login
       setMessage(`Welcome, ${res.data.userName}!`);
       setIsError(false);
       setShowModal(true);
-
+  
       setTimeout(() => {
         navigate(res.data.redirectUrl);
       }, 2000);
     } catch (error) {
-      setMessage(error.response?.data?.error || "Invalid Credentials. Please try again.");
+      // Handle errors from the backend
+      const errorMessage = error.response?.data?.error || "Invalid Credentials. Please try again.";
+      setMessage(errorMessage);
       setIsError(true);
       setShowModal(true);
+  
+      // If the account is banned or inactive, provide a link to contact admin
+      if (errorMessage.includes("banned") || errorMessage.includes("not active")) {
+        setMessage(
+          <>
+            {errorMessage} <a href="/ContactUs" className="text-blue-500 hover:underline">Contact Admin</a>
+          </>
+        );
+      }
     }
   };
 
@@ -74,11 +86,12 @@ const Login = () => {
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
+                onChange={(e) => handleChange({ target: { name: "email", value: e.target.value.toLowerCase() } })}
                 placeholder="Email"
                 className="w-full p-3 focus:ring-2 focus:ring-blue-400 border-none outline-none"
                 required
               />
+
             </div>
             <div className="flex items-center border border-gray-300 rounded-lg p-2 transition duration-300 hover:border-blue-500 hover:bg-gray-100">
               <FaLock className="text-blue-600 mr-3" />

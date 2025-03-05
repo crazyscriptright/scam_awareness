@@ -10,7 +10,6 @@ const AdminProfile = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [profilePicture, setProfilePicture] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [logoutMessage, setLogoutMessage] = useState(null);
@@ -73,20 +72,26 @@ const AdminProfile = () => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("profilePicture", file);
+    // Convert the image file to Base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      const base64Image = reader.result; // Base64-encoded image
 
-    axios
-      .post("http://localhost:5000/update-profile-picture", formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((res) => {
-        setUser((prev) => ({ ...prev, profilePic: res.data.profilePic }));
-        alert("Profile picture updated successfully!");
-        setIsProfileModalOpen(false);
-      })
-      .catch((err) => console.error("Profile picture update error", err));
+      // Send the Base64-encoded image to the backend
+      axios
+        .post(
+          "http://localhost:5000/update-profile-picture",
+          { profilePicture: base64Image },
+          { withCredentials: true }
+        )
+        .then((res) => {
+          setUser((prev) => ({ ...prev, profilePic: res.data.profilePic }));
+          alert("Profile picture updated successfully!");
+          setIsProfileModalOpen(false);
+        })
+        .catch((err) => console.error("Profile picture update error", err));
+    };
   };
 
   // Close dropdown when clicking outside

@@ -6,23 +6,41 @@ import { FaChartBar, FaChartLine, FaUsers } from "react-icons/fa";
 const UserRegistrationChart = ({ setTotalRegistrations }) => {
   const [data, setData] = useState([]);
   const [chartType, setChartType] = useState("bar"); // "bar" or "line"
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // Track mobile view
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/users/registration-stats")
       .then((res) => {
-        const formattedData = res.data.map(entry => ({
-          date: entry.date.split("T")[0], // Extract only the date part
-          count: Number(entry.count) || 0, // Convert count to number, default to 0 if NaN
-        }));
+        const formattedData = res.data.map(entry => {
+          const date = new Date(entry.date); // Parse the date string into a Date object
+          const day = String(date.getDate()).padStart(2, "0"); // Get day (DD)
+          const month = String(date.getMonth() + 1).padStart(2, "0"); // Get month (MM)
+          return {
+            date: `${day}/${month}`, // Format as DD/MM
+            count: Number(entry.count) || 0, // Convert count to number, default to 0 if NaN
+          };
+        });
 
-        setData(formattedData);
+        // 🔹 Filter data based on screen size
+        const filteredData = isMobile ? formattedData.slice(-5) : formattedData.slice(-10);
+        setData(filteredData);
 
         // 🔹 Calculate total registrations and update parent state
-        const total = formattedData.reduce((sum, entry) => sum + entry.count, 0);
+        const total = filteredData.reduce((sum, entry) => sum + entry.count, 0);
         setTotalRegistrations(total);
       })
       .catch((err) => console.error("Error fetching registration stats:", err));
-  }, [setTotalRegistrations]);
+  }, [setTotalRegistrations, isMobile]); // Re-fetch and filter data when isMobile changes
+
+  // 🔹 Handle window resize to update isMobile state
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // 🔹 Calculate Average Growth Rate
   const avgGrowthRate = data.length > 1 
@@ -30,11 +48,19 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
     : 0;
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-xl transition-all duration-300">
+    <div className="overflow-hidden ">
+    <div 
+      className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-xl transition-all duration-300 mt-4"
+      style={{ 
+        marginLeft: isMobile ? "-30px" : "0" // Adjust margin for mobile view
+      }}
+    >
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-          <FaUsers className="mr-2 text-blue-500" /> User Registrations
+      <div className="flex justify-between items-center mb-4 ">
+        <h2 className="flex items-center ml-4 text-lg font-semibold text-gray-800 dark:text-white flex items-center">
+
+          <FaUsers className="mr-2 text-blue-500" />
+          User Registrations
         </h2>
         <div className="flex space-x-2">
           <button
@@ -53,7 +79,6 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
       </div>
 
       {/* Total Registrations & Growth */}
-
       <div className="text-center text-md font-semibold text-gray-700 dark:text-gray-300 mb-4 flex items-center justify-center">
         <FaChartLine className="text-green-500 mr-2" /> Avg Growth Rate: 
         <span className={`ml-2 ${avgGrowthRate >= 0 ? "text-green-500" : "text-red-500"}`}>
@@ -83,6 +108,7 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
           </LineChart>
         )}
       </ResponsiveContainer>
+    </div>
     </div>
   );
 };

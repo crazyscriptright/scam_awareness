@@ -30,9 +30,9 @@ import Login from './Components/pages/Login';
 import ForgotPassword from './Components/pages/ForgotPassword';
 import Home from './Components/pages/Home';
 import AdminHome from './Components/Admin/AdminHome';
-import Profile from './Components/User/Profile';
-import ReportScam from './Components/User/ReportScam';
 import ExternalResourceHome from './Components/ExternalResources/ExternalResourcesHome';
+import ReportScam from './Components/User/ReportScam';
+import ContactUs from './Components/User/ContactUs';
 
 
 const App = () => {
@@ -45,9 +45,9 @@ const App = () => {
                 <Route path="/ForgotPassword" element={<ForgotPassword />}/>
                 <Route path="/" element={<Home />}/>
                 <Route path="/Admin/AdminHome" element={<AdminHome />}/>
-                <Route path="/User/Profile" element={<Profile />}/> 
-                <Route path="/ReportScam" element = {<ReportScam />}/>
                 <Route path="/ExternalResources/ExternalResourcesHome" element = {<ExternalResourceHome />}/>
+                <Route path="/User/ReportScam" element={<ReportScam />}/>
+                <Route path='ContactUs' element={<ContactUs />}/>
             </Routes>
         </Router>
     </div>

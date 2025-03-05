@@ -75,11 +75,19 @@ const Registration = () => {
                 type="text" 
                 name="name" 
                 value={formData.name} 
-                onChange={handleChange} 
+                onChange={(e) => handleChange({ 
+                  target: { 
+                    name: "name", 
+                    value: e.target.value
+                      .toLowerCase()
+                      .replace(/\b\w/g, (char) => char.toUpperCase()) 
+                  } 
+                })} 
                 placeholder="User Name" 
                 className="w-full p-3 focus:ring-2 focus:ring-blue-400 border-none outline-none" 
                 required 
               />
+
             </div>
             <div className="flex items-center border border-gray-300 rounded-lg p-2 transition duration-300 hover:border-blue-500 hover:bg-gray-100">
               <FaCalendarAlt className="text-blue-600 mr-3" />
@@ -98,11 +106,17 @@ const Registration = () => {
                 type="email" 
                 name="email" 
                 value={formData.email} 
-                onChange={handleChange} 
+                onChange={(e) => handleChange({ 
+                  target: { 
+                    name: "email", 
+                    value: e.target.value.toLowerCase() 
+                  } 
+                })} 
                 placeholder="Email" 
                 className="w-full p-3 focus:ring-2 focus:ring-blue-400 border-none outline-none" 
                 required 
               />
+
             </div>
             <div className="flex items-center border border-gray-300 rounded-lg p-2 transition duration-300 hover:border-blue-500 hover:bg-gray-100">
               <FaLock className="text-blue-600 mr-3" />

@@ -17,6 +17,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 const saltRounds = 10;
 
+const failedAttempts = {}; // { email: { count: 0, lastAttempt: Date } }
+
 // PostgreSQL Connection (Port 5434)
 const pool = new Pool({
   user: process.env.DB_USER || "postgres",
@@ -28,8 +30,8 @@ const pool = new Pool({
 
 // Middleware
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "15mb" })); // Adjust if needed
+app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
 app.use(helmet());
 app.use(compression());
 app.use(morgan("combined"));
@@ -53,9 +55,20 @@ app.use(
   })
 );
 
-// Multer setup for file uploads
+
+
+// Auto logout after inactivity
+app.use((req, res, next) => {
+  if (req.session.user) {
+    req.session.touch();
+  }
+  next();
+});
+
+// Multer setup (file handling, restricting to images and PDFs)
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
+
 
 // Middleware to check authentication
 const isAuthenticated = (req, res, next) => {
@@ -65,12 +78,25 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
-// Auto logout after inactivity
-app.use((req, res, next) => {
+
+// CHECK SESSION
+app.get("/session", (req, res) => {
   if (req.session.user) {
-    req.session.touch();
+    res.json({
+      loggedIn: true,
+      userType: req.session.user.userType,
+    });
+  } else {
+    res.json({ loggedIn: false });
   }
-  next();
+});
+
+app.get("/api/userid_fetch", (req, res) => {
+  if (req.session.user) {
+    res.json({ user_id: req.session.user.id });
+  } else {
+    res.status(401).json({ error: "Unauthorized" });
+  }
 });
 
 // REGISTER USER
@@ -100,18 +126,49 @@ app.post(
   asyncHandler(async (req, res) => {
     try {
       const { email, password } = req.body;
-      const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-        email,
-      ]);
 
-      if (
-        result.rows.length === 0 ||
-        !(await bcrypt.compare(password, result.rows[0].password))
-      ) {
+      if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required" });
+      }
+
+      // Check if the user is temporarily blocked
+      if (failedAttempts[email] && failedAttempts[email].count >= 3) {
+        const timeElapsed = (Date.now() - failedAttempts[email].lastAttempt) / 1000;
+        if (timeElapsed < 300) { // 5-minute block
+          return res.status(403).json({ error: "Too many failed attempts. Try again later." });
+        } else {
+          delete failedAttempts[email]; // Reset if timeout is over
+        }
+      }
+
+      // Fetch user from the database
+      const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+
+      if (result.rows.length === 0 || !(await bcrypt.compare(password, result.rows[0].password))) {
+        // Increment failed login attempts
+        if (!failedAttempts[email]) {
+          failedAttempts[email] = { count: 1, lastAttempt: Date.now() };
+        } else {
+          failedAttempts[email].count += 1;
+          failedAttempts[email].lastAttempt = Date.now();
+        }
+
         return res.status(401).json({ error: "Invalid credentials" });
       }
 
       const user = result.rows[0];
+
+      // Check user status
+      if (user.status === "banned") {
+        return res.status(403).json({ error: "Your account is banned. Please contact the admin." });
+      }
+
+      if (user.status !== "active") {
+        return res.status(403).json({ error: "Your account is not active. Please contact the admin." });
+      }
+
+      // Successful login: reset failed attempts
+      delete failedAttempts[email];
 
       // Regenerate session for security
       req.session.regenerate((err) => {
@@ -172,38 +229,41 @@ app.post(
   })
 );
 
-// CHECK SESSION
-app.get("/session", (req, res) => {
-  if (req.session.user) {
-    res.json({
-      loggedIn: true,
-      userType: req.session.user.userType,
-    });
-  } else {
-    res.json({ loggedIn: false });
-  }
-});
+//########Scam reports########
 
-// LOGOUT
-app.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.status(500).json({ error: "Logout failed" });
+app.post(
+  "/scam-reports",
+  isAuthenticated, // Ensure user is logged in
+  asyncHandler(async (req, res) => {
+    try {
+      const user_id = req.session.user.id;
+      const { scam_type, description, scam_date, proof } = req.body;
+
+      if (!user_id || !scam_type || !description || !scam_date || !proof) {
+        return res.status(400).json({ error: "All fields are required" });
+      }
+
+      const result = await pool.query(
+        "INSERT INTO scam_reports (user_id, scam_type, description, scam_date, proof) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+        [user_id, scam_type, description, scam_date, proof]
+      );
+
+      res.status(201).json({
+        message: "Scam report submitted successfully",
+        report: result.rows[0],
+      });
+    } catch (error) {
+      console.error("Scam report submission error:", error);
+      res.status(500).json({ error: "Error submitting scam report" });
     }
-    res.clearCookie("connect.sid", { path: "/" });
-    res.status(200).json({ message: "Logged out successfully" });
-  });
-});
+  })
+);
 
-//  PROFILE (GET & UPDATE)
+
+// ###########User########## 
+//  PROFILE User (GET & UPDATE)
 app.get("/profile", isAuthenticated, asyncHandler(async (req, res) => {
   try {
-    console.log("Session user in profile:", req.session.user); // Debug log
-
-    if (req.session.user.userType !== 0) {
-      return res.status(403).json({ error: "Access denied" });
-    }
-
     const result = await pool.query(
       "SELECT name, email, profile_picture FROM users WHERE user_id = $1 AND usertype = 0",
       [req.session.user.id]
@@ -220,7 +280,70 @@ app.get("/profile", isAuthenticated, asyncHandler(async (req, res) => {
   }
 }));
 
+// Update Profile Picture
+app.post(
+  "/update-profile-picture",
+  isAuthenticated,
+  upload.single("profilePicture"),
+  asyncHandler(async (req, res) => {
+    try {
+      const profilePic = req.file ? req.file.buffer : null;
+      await pool.query(
+        "UPDATE users SET profile_picture = $1 WHERE user_id = $2",
+        [profilePic, req.session.user.id]
+      );
+      res.json({ profilePic: `data:image/jpeg;base64,${profilePic.toString('base64')}` });
+    } catch (error) {
+      console.error("Profile picture update error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  })
+);
 
+
+// Update Password
+app.post(
+  "/update-password",
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    try {
+      const { newPassword } = req.body;
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+      await pool.query(
+        "UPDATE users SET password = $1 WHERE user_id = $2",
+        [hashedPassword, req.session.user.id]
+      );
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Password update error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  })
+);
+
+
+// Fetch Scam Reports for Logged-in User
+app.get(
+  "/scam-reports",
+  asyncHandler(async (req, res) => {
+    try {
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: "Unauthorized: Please log in" });
+      }
+
+      const userId = req.user.id; // Ensure req.user contains the authenticated user's ID
+      const result = await pool.query("SELECT * FROM scam_reports WHERE user_id = $1", [userId]);
+
+      res.status(200).json(result.rows);
+    } catch (error) {
+      console.error("Error retrieving scam reports:", error);
+      res.status(500).json({ error: "Error retrieving scam reports" });
+    }
+  })
+);
+
+
+//#########Admin############
 // ADMIN PROFILE (GET & UPDATE)
 app.get(
   "/admin/profile",
@@ -263,100 +386,43 @@ app.put(
   })
 );
 
-// Update Profile Picture
-app.post(
-  "/update-profile-picture",
-  isAuthenticated,
-  upload.single("profilePicture"),
-  asyncHandler(async (req, res) => {
-    try {
-      const profilePic = req.file ? req.file.buffer : null;
-      await pool.query(
-        "UPDATE users SET profile_picture = $1 WHERE user_id = $2",
-        [profilePic, req.session.user.id]
-      );
-      res.json({ profilePic: `data:image/jpeg;base64,${profilePic.toString('base64')}` });
-    } catch (error) {
-      console.error("Profile picture update error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  })
-);
 
-// Update Password
-app.post(
-  "/update-password",
-  isAuthenticated,
-  asyncHandler(async (req, res) => {
-    try {
-      const { newPassword } = req.body;
-      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-      await pool.query(
-        "UPDATE users SET password = $1 WHERE user_id = $2",
-        [hashedPassword, req.session.user.id]
-      );
-      res.json({ message: "Password updated successfully" });
-    } catch (error) {
-      console.error("Password update error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  })
-);
+//##########Admin Dashboard ##########
+
+// USER REGISTRATION
+//Avaible at Dashboard
+
+// ACTIVE SESSIONS
+app.get("/api/users/active-sessions", async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT COUNT(*) AS "activeSessions" FROM session WHERE expire > NOW()'
+    );
+
+    res.json({
+      activeSessions: parseInt(result.rows[0].activeSessions, 10),
+    });
+  } catch (err) {
+    console.error("Error fetching active sessions:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
 
 
-// Submit Scam Report (with automatic user ID fetching)
-app.post(
-  "/scam-reports",
-  upload.single("proof"),
-  isAuthenticated, // Ensure user is logged in
-  asyncHandler(async (req, res) => {
-    try {
-      const user_id = req.session.user.id; // Fetch user ID from session
-      const { scam_type, description, scam_date } = req.body;
+// SECURITY ALERTS
+app.get("/api/User/security-alerts", (req, res) => {
+  const alerts = Object.keys(failedAttempts)
+    .filter((email) => failedAttempts[email].count >= 3) // Show only blocked users
+    .map((email) => ({
+      message: `Multiple failed login attempts detected for ${email}`,
+      timestamp: new Date(failedAttempts[email].lastAttempt).toLocaleString(),
+    }));
 
-      if (!scam_type || !description || !scam_date) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
+  res.json(alerts.length > 0 ? alerts : [{ message: "No active security alerts" }]);
+});
 
-      const proofFilePath = req.file ? req.file.path : null;
-
-      const result = await pool.query(
-        "INSERT INTO scam_reports (user_id, scam_type, description, scam_date, proof) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-        [user_id, scam_type, description, scam_date, proofFilePath]
-      );
-
-      res.status(201).json({
-        message: "Scam report submitted successfully",
-        report: result.rows[0],
-      });
-    } catch (error) {
-      console.error("Scam report submission error:", error);
-      res.status(500).json({ error: "Error submitting scam report" });
-    }
-  })
-);
-
-// Fetch Scam Reports for Logged-in User
-app.get(
-  "/scam-reports",
-  asyncHandler(async (req, res) => {
-    try {
-      if (!req.user || !req.user.id) {
-        return res.status(401).json({ error: "Unauthorized: Please log in" });
-      }
-
-      const userId = req.user.id; // Ensure req.user contains the authenticated user's ID
-      const result = await pool.query("SELECT * FROM scam_reports WHERE user_id = $1", [userId]);
-
-      res.status(200).json(result.rows);
-    } catch (error) {
-      console.error("Error retrieving scam reports:", error);
-      res.status(500).json({ error: "Error retrieving scam reports" });
-    }
-  })
-);
-
-
+//charts used
+// USER REGISTRATION STATS
 app.get("/api/users/registration-stats", async (req, res) => {
   try {
     const result = await pool.query(`
@@ -372,10 +438,11 @@ app.get("/api/users/registration-stats", async (req, res) => {
   }
 });
 
+// SCAM REPORTS STATS
 app.get("/api/users/scam-reports", async (req, res) => {
   try {
     const result = await pool.query(`
-      SELECT report_id, user_id, scam_type, description, scam_date, report_status, submitted_at 
+      SELECT scam_type, report_status 
       FROM scam_reports
       ORDER BY submitted_at DESC;
     `);
@@ -387,17 +454,27 @@ app.get("/api/users/scam-reports", async (req, res) => {
   }
 });
 
-app.get("/api/users/active-sessions", async (req, res) => {
+
+//###########Table############
+// Fetch proof for a specific report
+app.get("/api/scam-reports/:report_id/proof", async (req, res) => {
+  const { report_id } = req.params;
   try {
     const result = await pool.query(
-      "SELECT COUNT(*) AS activeSessions FROM session WHERE expire > NOW()"
+      "SELECT proof FROM scam_reports WHERE report_id = $1",
+      [report_id]
     );
-    res.json({
-      activeSessions: parseInt(result.rows[0].activesessions, 10), // Just returning count
-    });
-  } catch (err) {
-    console.error("Error fetching active sessions:", err);
-    res.status(500).json({ error: "Internal server error" });
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Proof not found" });
+    }
+
+    // Return the proof as a base64-encoded string
+    const proof = result.rows[0].proof;
+    res.status(200).send(proof); // Send the raw base64 string
+  } catch (error) {
+    console.error("Error fetching proof:", error);
+    res.status(500).json({ message: "Server Error", error });
   }
 });
 
@@ -415,7 +492,7 @@ app.get("/api/scam-reports", async (req, res) => {
 // Update scam report status
 app.put("/admin-approval/:report_id", async (req, res) => {
   const { report_id } = req.params;
-  const { report_status } = req.body;
+  const { report_status, admin_comments } = req.body;
 
   if (!report_status) {
     return res.status(400).json({ error: "report_status is required" });
@@ -423,8 +500,8 @@ app.put("/admin-approval/:report_id", async (req, res) => {
 
   try {
     const result = await pool.query(
-      "UPDATE scam_reports SET report_status = $1 WHERE report_id = $2 RETURNING *",
-      [report_status, report_id]
+      "UPDATE scam_reports SET report_status = $1, admin_comments = $2 WHERE report_id = $3 RETURNING *",
+      [report_status, admin_comments || null, report_id]
     );
 
     if (result.rowCount === 0) {
@@ -438,23 +515,142 @@ app.put("/admin-approval/:report_id", async (req, res) => {
   }
 });
 
-app.get("/profile", isAuthenticated, asyncHandler(async (req, res) => {
+//#########Fetch all scam reports##########
+// Fetch all scam reports
+app.get("/api/all-scam-reports", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        report_id, 
+        user_id, 
+        scam_type, 
+        scam_date, 
+        report_status, 
+        last_modified, 
+        description 
+      FROM scam_reports
+      ORDER BY last_modified DESC;
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching all scam reports:", error);
+    res.status(500).json({ message: "Server Error", error });
+  }
+});
+
+
+//##############Creating External Users##############
+// Fetch all external users
+app.post("/api/create_external_user", async (req, res) => {
+  const { name, dob, email, password } = req.body;
+
   try {
     const result = await pool.query(
-      "SELECT name, email, profile_picture FROM users WHERE user_id = $1 AND usertype = 0",
-      [req.session.user.id]
+      `INSERT INTO users (name, dob, email, password, user_type)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [name, dob, email, password, 2] // user_type is set to 2
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ message: "Failed to create user", error });
+  }
+});
+
+//###########Contact##########
+// Fetch all contact details
+app.get("/api/contacts", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        contact_id, 
+        user_id, 
+        message, 
+        submitted_at, 
+        attachment 
+      FROM contacts
+      ORDER BY submitted_at DESC;
+    `);
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
+    res.status(500).json({ message: "Failed to fetch contacts", error });
+  }
+});
+
+//###########User staus block ##########
+// Update user status by email or ID
+app.put("/api/users/status", async (req, res) => {
+  const { identifier, status } = req.body;
+
+  try {
+    // Check if the identifier is a number (user ID) or a string (email)
+    const isNumeric = !isNaN(identifier);
+
+    const result = await pool.query(
+      `UPDATE users 
+       SET status = $1 
+       WHERE ${isNumeric ? "user_id = $2::integer" : "email = $2"} 
+       RETURNING *`,
+      [status, identifier]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.json(result.rows[0]);
+    res.status(200).json(result.rows[0]);
   } catch (error) {
-    console.error("User profile error:", error);
+    console.error("Error updating user status:", error);
+    res.status(500).json({ message: "Failed to update user status", error });
+  }
+});
+
+
+//###########Normal user###############
+// Contact Us or Feedback
+// Contact Us endpoint
+app.post("/api/contact", (req, res) => {
+  const { message, attachment } = req.body;
+
+  // Check if user is logged in
+  if (!req.session.user.id) {
+    return res.status(401).json({ error: "Unauthorized: Please log in" });
+  }
+
+  const userId = req.session.user.id; // Get user_id from session
+
+  // Insert into database
+  pool.query(
+    "INSERT INTO contacts (user_id, message, attachment, submitted_at) VALUES ($1, $2, $3, $4) RETURNING *",
+    [userId, message, attachment, new Date()],
+    (error, result) => {
+      if (error) {
+        console.error("Error inserting contact:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      }
+      res.status(201).json(result.rows[0]);
+    }
+  );
+});
+
+// Fetch all contacts endpoint
+app.get("/api/contactus", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM contacts ORDER BY submitted_at DESC");
+    const contacts = result.rows.map((contact) => ({
+      ...contact,
+      attachment: contact.attachment ? contact.attachment.toString("base64") : null,
+    }));
+    res.status(200).json(contacts);
+  } catch (error) {
+    console.error("Error fetching contacts:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
-}));
+});
 
 // app.post("/resolve-report", isAuthenticated, asyncHandler(async (req, res) => {
 //   try {
@@ -467,7 +663,16 @@ app.get("/profile", isAuthenticated, asyncHandler(async (req, res) => {
 // }));
 
 
-
+// LOGOUT
+app.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Logout failed" });
+    }
+    res.clearCookie("connect.sid", { path: "/" });
+    res.status(200).json({ message: "Logged out successfully" });
+  });
+});
 
 // Start the server
 app.listen(port, () => {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Modal from "./Modal"; // Import the Modal component
 
 const scamTypes = [
   "Investment",
@@ -19,49 +21,104 @@ const ReportScam = () => {
   const [scamDate, setScamDate] = useState("");
   const [proof, setProof] = useState(null);
   const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
 
-  // Fetch user session to check authentication
   useEffect(() => {
     axios
       .get("http://localhost:5000/profile", { withCredentials: true })
       .then((res) => setUser(res.data))
-      .catch(() => setUser(null));
-  }, []);
+      .catch(() => {
+        setUser(null);
+        navigate("/login");
+      });
+  }, [navigate]);
 
   const handleFileChange = (e) => {
-    setProof(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      const validTypes = [
+        "image/jpeg", // .jpg, .jpeg
+        "video/mp4",   // .mp4
+        "audio/mpeg",  // .mp3
+        "application/pdf", // .pdf
+      ];
+      const fileSizeMB = file.size / (1024 * 1024);
+      
+      // Check if the file type is valid
+      if (!validTypes.includes(file.type)) {
+        setMessage("Invalid file type. Only .jpg, .jpeg, .mp4, .mp3, and .pdf are allowed.");
+        setShowModal(true);
+        setIsSuccess(false);
+        return;
+      }
+      
+      // Check file size
+      if (fileSizeMB > 10) {
+        setMessage("File size exceeds 10MB limit.");
+        setShowModal(true);
+        setIsSuccess(false);
+        return;
+      }
+  
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setProof(reader.result);
+      };
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value);
+    const currentDate = new Date();
+
+    if (selectedDate > currentDate) {
+      setMessage("Scam date cannot be in the future.");
+      setShowModal(true);
+      setIsSuccess(false);
+      setScamDate(""); // Clear the input
+    } else {
+      setScamDate(e.target.value);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!scamType || !description || !scamDate) {
-      setMessage("All fields are required!");
+    if (!scamType || !description || !scamDate || !proof) {
+      setMessage("All fields, including proof, are required!");
+      setShowModal(true);
+      setIsSuccess(false);
       return;
     }
 
-    const formData = new FormData();
-    formData.append("scam_type", scamType);
-    formData.append("description", description);
-    formData.append("scam_date", scamDate);
-    if (proof) {
-      formData.append("proof", proof);
-    }
+    const reportData = {
+      scam_type: scamType,
+      description,
+      scam_date: scamDate,
+      proof, // Base64 encoded file
+    };
 
     try {
       const response = await axios.post(
         "http://localhost:5000/scam-reports",
-        formData,
-        { withCredentials: true, headers: { "Content-Type": "multipart/form-data" } }
+        reportData,
+        { withCredentials: true }
       );
       setMessage(response.data.message);
+      setIsSuccess(true);
+      setShowModal(true);
       setScamType("");
       setDescription("");
       setScamDate("");
       setProof(null);
     } catch (error) {
       setMessage("Failed to submit scam report");
+      setIsSuccess(false);
+      setShowModal(true);
       console.error("Error submitting scam report:", error);
     }
   };
@@ -71,9 +128,7 @@ const ReportScam = () => {
       {user ? (
         <>
           <h2 className="text-xl font-semibold mb-4">Submit a Scam Report</h2>
-          {message && <p className="text-red-500">{message}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Scam Type Dropdown */}
             <div>
               <label className="block text-sm font-medium">Scam Type</label>
               <select
@@ -91,7 +146,6 @@ const ReportScam = () => {
               </select>
             </div>
 
-            {/* Description */}
             <div>
               <label className="block text-sm font-medium">Description</label>
               <textarea
@@ -102,25 +156,24 @@ const ReportScam = () => {
               ></textarea>
             </div>
 
-            {/* Scam Date */}
             <div>
               <label className="block text-sm font-medium">Scam Date</label>
               <input
                 type="date"
                 className="w-full p-2 border rounded"
                 value={scamDate}
-                onChange={(e) => setScamDate(e.target.value)}
+                onChange={handleDateChange}
+                min="2010-01-01" // Set min date to January 1, 2010
+                max={new Date().toISOString().slice(0, 10)} // Set max to current date
                 required
               />
             </div>
 
-            {/* Proof Upload */}
             <div>
-              <label className="block text-sm font-medium">Proof (optional)</label>
-              <input type="file" accept="image/*" onChange={handleFileChange} />
+              <label className="block text-sm font-medium">Proof (Required)</label>
+              <input type="file" accept="image/*,video/*,audio/*,.pdf,.doc,.docx" onChange={handleFileChange} required />
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
@@ -128,9 +181,18 @@ const ReportScam = () => {
               Submit Report
             </button>
           </form>
+
+          {/* Render the Modal */}
+          {showModal && (
+            <Modal
+              message={message}
+              onClose={() => setShowModal(false)}
+              isSuccess={isSuccess}
+            />
+          )}
         </>
       ) : (
-        <p className="text-center text-red-500">Please log in to submit a scam report.</p>
+        <p className="text-center text-red-500">Redirecting to login page...</p>
       )}
     </div>
   );

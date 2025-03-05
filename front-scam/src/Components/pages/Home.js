@@ -179,8 +179,8 @@ const Home = () => {
       </section>
 
 
- {/* Report a Scam Section */}
- <section className="py-12 px-6 bg-blue-600 text-white text-center">
+      {/* Report a Scam Section */}
+      <section className="py-12 px-6 bg-blue-600 text-white text-center">
         <h2 className="text-3xl font-bold">Have You Encountered a Scam?</h2>
         <p className="mt-2 text-lg">Report it and help protect others!</p>
         <motion.button
