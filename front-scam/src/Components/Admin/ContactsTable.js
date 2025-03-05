@@ -11,6 +11,7 @@ import ReactAudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import * as pdfjs from "pdfjs-dist";
 
 const ContactsTable = () => {
   const [contacts, setContacts] = useState([]);
