@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Table, Input, Button, Modal, Spin, message as antdMessage } from "antd";
-import { FaSyncAlt, FaEye } from "react-icons/fa";
+import { FaSyncAlt, FaEye, FaPaperclip } from "react-icons/fa";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
 
-const ContactMessagesTable = () => {
+const ContactUsView = () => {
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -67,14 +67,26 @@ const ContactMessagesTable = () => {
           {text.length > 15 ? (
             <>
               {text.substring(0, 15)}...
-              <Button type="link" icon={<FaEye />} onClick={() => handleOpenModal(text)}>
-              </Button>
+              <Button type="link" icon={<FaEye />} onClick={() => handleOpenModal(text)} />
             </>
           ) : (
             text
           )}
         </div>
       ),
+    },
+    {
+      title: "Attachment",
+      dataIndex: "attachment",
+      key: "attachment",
+      render: (attachment) =>
+        attachment ? (
+          <a href={attachment} target="_blank" rel="noopener noreferrer">
+            <Button type="link" icon={<FaPaperclip />}>View</Button>
+          </a>
+        ) : (
+          "No Attachment"
+        ),
     },
   ];
 
@@ -128,4 +140,4 @@ const ContactMessagesTable = () => {
   );
 };
 
-export default ContactMessagesTable;
+export default ContactUsView;
