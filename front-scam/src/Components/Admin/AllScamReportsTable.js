@@ -4,6 +4,8 @@ import { Table, Input, Select, Button, Spin, DatePicker, message, Modal } from "
 import { FaSyncAlt } from "react-icons/fa";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
+import { FaEye, } from "react-icons/fa";
+
 
 
 const { RangePicker } = DatePicker;
@@ -128,10 +130,9 @@ const AllScamReportsTable = () => {
       key: "description",
       render: (text) => (
         <div>
-          {text.length > 50 ? `${text.substring(0, 50)}...` : text}
-          {text.length > 50 && (
-            <Button type="link" onClick={() => handleReadMore(text)}>
-              Read More
+          {text.length > 15 ? `${text.substring(0, 50)}...` : text}
+          {text.length > 15 && (
+            <Button type="link" icon={<FaEye />} onClick={() => handleReadMore(text)}>
             </Button>
           )}
         </div>

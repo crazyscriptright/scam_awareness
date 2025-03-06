@@ -4,6 +4,9 @@ import { Table, Input, Button, Modal, Spin, message as antdMessage } from "antd"
 import { FaSyncAlt, FaEye, FaPaperclip } from "react-icons/fa";
 import { motion } from "framer-motion";
 import dayjs from "dayjs";
+import ModalImage from "react-modal-image";
+import { Viewer, Worker } from "@react-pdf-viewer/core";
+import "@react-pdf-viewer/core/lib/styles/index.css";
 
 const ContactUsView = () => {
   const [contacts, setContacts] = useState([]);
@@ -11,6 +14,8 @@ const ContactUsView = () => {
   const [search, setSearch] = useState("");
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [proofModalVisible, setProofModalVisible] = useState(false);
+  const [attachment, setAttachment] = useState(null);
 
   useEffect(() => {
     fetchContacts();
@@ -38,6 +43,30 @@ const ContactUsView = () => {
       contact.message.toLowerCase().includes(search.toLowerCase()) ||
       String(contact.contact_id).includes(search)
   );
+
+  const fetchattachments = async (contactId) => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/contacts/${contactId}/attachment`);
+      setAttachment(res.data);
+      setProofModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching attachment:", error);
+      antdMessage.error("Failed to fetch attachment.");
+    }
+  };
+
+  const getattachmentType = (attachment) => {
+    if (typeof attachment === "string") {
+      if (attachment.startsWith("data:image")) {
+        return "image";
+      } else if (attachment.startsWith("data:application")) {
+        return "application";
+      }
+    }
+    return "unknown";
+  };
+
+  const attachmentType = getattachmentType(attachment);
 
   const columns = [
     {
@@ -79,11 +108,15 @@ const ContactUsView = () => {
       title: "Attachment",
       dataIndex: "attachment",
       key: "attachment",
-      render: (attachment) =>
+      render: (attachment, record) =>
         attachment ? (
-          <a href={attachment} target="_blank" rel="noopener noreferrer">
-            <Button type="link" icon={<FaPaperclip />}>View</Button>
-          </a>
+          <Button
+            type="link"
+            icon={<FaEye />}
+            onClick={() => fetchattachments(record.contact_id)}
+          >
+            View
+          </Button>
         ) : (
           "No Attachment"
         ),
@@ -95,7 +128,7 @@ const ContactUsView = () => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl shadow-md overflow-x-auto p-5"
+      className="bg-white rounded-xl shadow-md overflow-x-auto p-4 mt-4"
     >
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center mb-4">
@@ -135,6 +168,34 @@ const ContactUsView = () => {
         footer={null}
       >
         <p>{selectedMessage}</p>
+      </Modal>
+
+      {/* Attachment Modal */}
+      <Modal
+        title="Attachment"
+        visible={proofModalVisible}
+        onCancel={() => setProofModalVisible(false)}
+        footer={null}
+        width={800}
+      >
+        {attachment && (
+          <div>
+            {attachmentType === "image" ? (
+              <ModalImage
+                small={attachment}
+                large={attachment}
+                alt="Attachment"
+                hideDownload={true}
+              />
+            ) : attachmentType === "application" ? (
+              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                <Viewer fileUrl={attachment} />
+              </Worker>
+            ) : (
+              <p>Unknown attachment type.</p>
+            )}
+          </div>
+        )}
       </Modal>
     </motion.div>
   );

@@ -390,7 +390,22 @@ app.put(
 //##########Admin Dashboard ##########
 
 // USER REGISTRATION
-//Avaible at Dashboard
+// Endpoint to get total user registrations
+app.get("/api/users/total-registrations-count", async (req, res) => {
+  try {
+    // Query the database to count total users
+    const result = await pool.query("SELECT COUNT(*) AS total FROM users");
+    
+    // Extract the total count from the query result
+    const totalRegistrations = result.rows[0].total;
+
+    // Send the response
+    res.status(200).json({ totalRegistrations });
+  } catch (error) {
+    console.error("Error fetching total registrations count:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 // ACTIVE SESSIONS
 app.get("/api/users/active-sessions", async (req, res) => {
@@ -637,6 +652,28 @@ app.post("/api/contact", (req, res) => {
   );
 });
 
+app.get("/api/contacts/:contact_id/attachment", async (req, res) => {
+  const { contact_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT attachment FROM contacts WHERE contact_id = $1",
+      [contact_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Contact not found" });
+    }
+
+    const attachment = result.rows[0].attachment;
+
+    // If the attachment is a base64-encoded string, send it directly
+    res.status(200).send(attachment);
+  } catch (error) {
+    console.error("Error fetching attachment:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 // Fetch all contacts endpoint
 // app.get("/api/contactus", async (req, res) => {
 //   try {

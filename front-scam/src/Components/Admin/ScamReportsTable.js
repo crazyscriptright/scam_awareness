@@ -24,6 +24,8 @@ const ScamReportsTable = () => {
   const [currentReport, setCurrentReport] = useState(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [expandedRows, setExpandedRows] = useState({});
+  const [modalVisible, setModalVisible] =useState(false);
+  const [selectedMessage, setSelectedMessage] =useState(false);
 
   const toggleExpand = (reportId) => {
     setExpandedRows((prev) => ({
@@ -58,6 +60,10 @@ const ScamReportsTable = () => {
       message.error("Failed to fetch reports. Please try again later.");
     }
     setLoading(false);
+  };
+  const handleOpenModal = (message) => {
+    setSelectedMessage(message);
+    setModalVisible(true);
   };
 
   const handleFilterChange = (key, value) => {
@@ -112,6 +118,7 @@ const ScamReportsTable = () => {
       message.error("Failed to fetch proof. Please try again later.");
     }
   };
+
 
   const filteredData = reports.filter(
     (report) =>
@@ -170,28 +177,20 @@ const ScamReportsTable = () => {
       dataIndex: "description",
       key: "description",
       responsive: ["lg"],
-      render: (text, record) => {
-        const isExpanded = expandedRows[record.report_id];
-      
-        return (
-          <div>
-            <p style={{ display: "inline" }}>
-              {isExpanded ? text : text.length > 15 ? text.substring(0, 15) + "..." : text}
-            </p>
-      
-            {text.length > 15 && (
-              <Button
-                type="link"
-                onClick={() => toggleExpand(record.report_id)}
-                style={{ marginLeft: "8px", padding: 0 }}
-              >
-                {isExpanded ? "Read Less" : "Read More"}
-              </Button>
-            )}
+      render: (text) => (
+        <div>
+          {text.length >15 ? (
+            <>
+            {text.substring(0,15)}...
+            <Button type="link" icon={<FaEye/>} onClick={() => handleOpenModal(text)} />
+            </>
+          ) : (
+            text
+          )}
           </div>
-        );
-      },
-    },      
+      ),
+    },
+      
     {
       title: "Proof",
       key: "proof",
@@ -232,6 +231,7 @@ const ScamReportsTable = () => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
+      id="Analytics"
       className="bg-white rounded-xl shadow-md overflow-x-auto p-5"
     >
       {/* Header */}
@@ -288,7 +288,15 @@ const ScamReportsTable = () => {
           />
         </div>
       )}
-
+      {/* {/* Description Modal} */}
+      <Modal
+        title="Full Message"
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+        >
+          <p>{selectedMessage}</p>
+        </Modal>
       {/* Proof Modal */}
       <Modal
         title="Proof"
