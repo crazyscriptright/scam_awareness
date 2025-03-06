@@ -11,7 +11,6 @@ import ReactAudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import dayjs from "dayjs";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import * as pdfjs from "pdfjs-dist";
 
 const ContactsTable = () => {
   const [contacts, setContacts] = useState([]);
@@ -177,7 +176,7 @@ const ContactsTable = () => {
                 alt="Attachment"
               />
             ) : attachmentType === "pdf" ? (
-              <Worker workerUrl={`https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`}>
+              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
                 <Viewer fileUrl={selectedAttachment} />
               </Worker>
             ) : attachmentType === "video" ? (

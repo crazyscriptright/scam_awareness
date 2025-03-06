@@ -11,6 +11,7 @@ import ScamReportsTable from "./ScamReportsTable";
 import AllScamReportsTable from "./AllScamReportsTable";
 import UserManagement from "./UserManagement";
 import ContactsTable from "./ContactsTable";
+import ContactUsView from "./ContactUsView";
 
 
 const AdminHome = () => {
@@ -176,6 +177,7 @@ const AdminHome = () => {
             <AllScamReportsTable />
             <ContactsTable/>
             <UserManagement />
+            <ContactUsView />
           </motion.div>
         </div>
       </main>

@@ -638,19 +638,87 @@ app.post("/api/contact", (req, res) => {
 });
 
 // Fetch all contacts endpoint
-app.get("/api/contactus", async (req, res) => {
+// app.get("/api/contactus", async (req, res) => {
+//   try {
+//     const result = await pool.query("SELECT * FROM contacts ORDER BY submitted_at DESC");
+//     const contacts = result.rows.map((contact) => ({
+//       ...contact,
+//       attachment: contact.attachment ? contact.attachment.toString("base64") : null,
+//     }));
+//     res.status(200).json(contacts);
+//   } catch (error) {
+//     console.error("Error fetching contacts:", error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
+app.post(
+  "/contact",
+  isAuthenticated,
+  asyncHandler(async (req, res) => {
+    try {
+      const { message, attachment } = req.body;
+      const user_id = req.session.user.id;
+
+      if (!message) {
+        return res.status(400).json({ error: "Message field is required" });
+      }
+
+      const result = await pool.query(
+        "INSERT INTO contacts (user_id, message, attachment) VALUES ($1, $2, $3) RETURNING *",
+        [user_id, message, attachment || null]
+      );
+
+      res.status(201).json({
+        message: "Contact request submitted successfully",
+        contact: result.rows[0],
+      });
+    } catch (error) {
+      console.error("Contact form submission error:", error);
+      res.status(500).json({ error: "Error submitting contact request" });
+    }
+  })
+);
+app.get("/api/contacts", async (req, res) => {
   try {
-    const result = await pool.query("SELECT * FROM contacts ORDER BY submitted_at DESC");
-    const contacts = result.rows.map((contact) => ({
-      ...contact,
-      attachment: contact.attachment ? contact.attachment.toString("base64") : null,
-    }));
-    res.status(200).json(contacts);
+    const { limit = 10, offset = 0 } = req.query; // Defaults to fetching 10 records
+    const result = await pool.query(
+      "SELECT contact_id, user_id, message, submitted_at, encode(attachment, 'base64') as attachment FROM contacts ORDER BY submitted_at DESC LIMIT $1 OFFSET $2",
+      [limit, offset]
+    );
+    res.status(200).json(result.rows);
   } catch (error) {
     console.error("Error fetching contacts:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ message: "Server Error", error });
   }
 });
+
+app.get("/download/:contact_id", async (req, res) => {
+  const { contact_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT attachment FROM contacts WHERE contact_id = $1",
+      [contact_id]
+    );
+
+    if (result.rows.length === 0 || !result.rows[0].attachment) {
+      return res.status(404).json({ message: "Attachment not found" });
+    }
+
+    const fileData = result.rows[0].attachment; // BYTEA data
+
+    res.set({
+      "Content-Type": "application/octet-stream",
+      "Content-Disposition": `attachment; filename="attachment_${contact_id}"`,
+    });
+
+    res.send(fileData); // Send raw file data
+  } catch (error) {
+    console.error("Error downloading file:", error);
+    res.status(500).json({ message: "Server Error", error });
+  }
+});
+
 
 // app.post("/resolve-report", isAuthenticated, asyncHandler(async (req, res) => {
 //   try {
