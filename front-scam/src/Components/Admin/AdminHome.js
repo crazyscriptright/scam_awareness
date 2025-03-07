@@ -11,6 +11,7 @@ import ScamReportsTable from "./ScamReportsTable";
 import AllScamReportsTable from "./AllScamReportsTable";
 import UserManagement from "./UserManagement";
 import ContactUsView from "./ContactUsView";
+import AdminNavbardup from "./AdminNavbar";
 
 const AdminHome = () => {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -143,8 +144,10 @@ const AdminHome = () => {
 
             {/* Security Alert Details */}
             {showAlerts && (
-              <div className="space-y-4 w-full">
-                {securityAlerts.map((alert, index) => (
+            <div className="space-y-4 w-full">
+              {securityAlerts
+                .slice(-5) // Get the last 5 notifications
+                .map((alert, index) => (
                   <motion.div
                     key={index}
                     className="bg-red-100 p-4 rounded-lg shadow-sm hover:shadow-md text-sm transition-all duration-200 w-full"
@@ -159,8 +162,9 @@ const AdminHome = () => {
                     </p>
                   </motion.div>
                 ))}
-              </div>
-            )}
+            </div>
+          )}
+
           </motion.div>
           )}
         </div>
@@ -172,7 +176,9 @@ const AdminHome = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <UserRegistrationChart />
+            <div id="Analytics">
+              <UserRegistrationChart />
+            </div>
           </motion.div>
 
           {/* Scam Reports Chart & Table */}
@@ -181,13 +187,19 @@ const AdminHome = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div id="Analytics">
-             <ScamReportsChart />
+            <ScamReportsChart />
+            <div id="Review">
+              <ScamReportsTable />
             </div>
-            <ScamReportsTable />
-            <AllScamReportsTable />
-            <ContactUsView />
-            <UserManagement />
+            <div id="Scam_Reports">
+              <AllScamReportsTable />
+            </div>
+            <div id= "Contact_Us">
+              <ContactUsView />
+            </div>
+            <div id="User_Management">
+              <UserManagement />
+            </div>
           </motion.div>
         </div>
       </main>

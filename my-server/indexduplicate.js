@@ -347,12 +347,12 @@ app.get(
 // ADMIN PROFILE (GET & UPDATE)
 app.get(
   "/admin/profile",
-  isAuthenticated,
+  // isAuthenticated,
   asyncHandler(async (req, res) => {
     try {
       const result = await pool.query(
-        "SELECT name, email, profile_picture FROM users WHERE user_id = $1 AND usertype = 1",
-        [req.session.user.id]
+        "SELECT name, email, profile_picture FROM users WHERE user_id = 59 AND usertype = 1"//,
+        // [req.session.user.id]
       );
 
       if (result.rows.length === 0) {
@@ -367,24 +367,74 @@ app.get(
   })
 );
 
-app.put(
-  "/admin/profile",
-  isAuthenticated,
-  asyncHandler(async (req, res) => {
-    try {
-      const { name, email } = req.body;
-      await pool.query(
-        "UPDATE users SET name = $1, email = $2 WHERE user_id = $3 AND usertype = 1",
-        [name, email, req.session.user.id]
-      );
+// Endpoint to update profile picture
+app.post('/Admin/update-admin-picture', async (req, res) => {
+  const { user_id, profile_picture } = req.body;
 
-      res.json({ message: "Profile updated successfully" });
-    } catch (error) {
-      console.error("Admin profile update error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+  try {
+    const result = await pool.query(
+      'UPDATE users SET profile_picture = $1 WHERE user_id = $2 AND usertype = 1 RETURNING *',
+      [profile_picture, user_id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found or not authorized' });
     }
-  })
-);
+
+    res.status(200).json({ message: 'Profile picture updated successfully', user: result.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get("/user/:id", async (req, res) => {
+  try {
+      const user = await User.findOne({ user_id: req.params.id });
+      if (!user) return res.status(404).json({ message: "User not found" });
+      res.json(user);
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+});
+// app.put(
+//   "/admin/profile",
+//   isAuthenticated,
+//   asyncHandler(async (req, res) => {
+//     try {
+//       const { name, email } = req.body;
+//       await pool.query(
+//         "UPDATE users SET name = $1, email = $2 WHERE user_id = $3 AND usertype = 1",
+//         [name, email, req.session.user.id]
+//       );
+
+//       res.json({ message: "Profile updated successfully" });
+//     } catch (error) {
+//       console.error("Admin profile update error:", error);
+//       res.status(500).json({ error: "Internal Server Error" });
+//     }
+//   })
+// );
+
+app.get("/api/admin/:user_id/profile", async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "SELECT profile_picture FROM users WHERE user_id = $1 AND usertype = 1",
+      [user_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Profile not found" });
+    }
+
+    res.status(200).json({ profile_picture: result.rows[0].profile_picture });
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 
 //##########Admin Dashboard ##########
@@ -555,7 +605,7 @@ app.get("/api/all-scam-reports", async (req, res) => {
 
 
 //##############Creating External Users##############
-// Fetch all external users
+//createing external users
 app.post("/api/create_external_user", async (req, res) => {
   const { name, dob, email, password } = req.body;
 
