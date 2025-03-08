@@ -2,32 +2,28 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const AdminProfiledup = () => {
-  const [image, setImage] = useState(null);
+  const [file, setFile] = useState(null);
   const [userId, setUserId] = useState('');
 
   const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-
-    reader.onloadend = () => {
-      setImage(reader.result); // Base64 string
-    };
-
-    if (file) {
-      reader.readAsDataURL(file);
-    }
+    setFile(event.target.files[0]); // Store the selected file
   };
 
   const handleSubmit = async () => {
-    if (!image || !userId) {
+    if (!file || !userId) {
       alert('Please upload an image and enter a user ID');
       return;
     }
 
+    const formData = new FormData();
+    formData.append('profile_picture', file); // Append the file to FormData
+    formData.append('user_id', userId); // Append the user ID to FormData
+
     try {
-      const response = await axios.post('http://localhost:5000/Admin/update-admin-picture', {
-        user_id: userId,
-        profile_picture: image,
+      const response = await axios.post('http://localhost:5000/update-profile-picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data', // Set the content type for file upload
+        },
       });
 
       alert(response.data.message);
@@ -49,7 +45,13 @@ const AdminProfiledup = () => {
       <br />
       <input type="file" accept="image/*" onChange={handleImageUpload} />
       <br />
-      {image && <img src={image} alt="Preview" style={{ width: '200px', marginTop: '10px' }} />}
+      {file && (
+        <img
+          src={URL.createObjectURL(file)} // Preview the uploaded image
+          alt="Preview"
+          style={{ width: '200px', marginTop: '10px' }}
+        />
+      )}
       <br />
       <button onClick={handleSubmit}>Update Profile Picture</button>
     </div>

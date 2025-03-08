@@ -367,9 +367,9 @@ app.get(
   })
 );
 
-// Endpoint to update profile picture
-app.post('/Admin/update-admin-picture', async (req, res) => {
-  const { user_id, profile_picture } = req.body;
+app.post('/update-profile-picture', upload.single('profile_picture'), async (req, res) => {
+  const { user_id } = req.body;
+  const profile_picture = req.file.buffer; // Binary data of the uploaded image
 
   try {
     const result = await pool.query(
@@ -388,15 +388,6 @@ app.post('/Admin/update-admin-picture', async (req, res) => {
   }
 });
 
-app.get("/user/:id", async (req, res) => {
-  try {
-      const user = await User.findOne({ user_id: req.params.id });
-      if (!user) return res.status(404).json({ message: "User not found" });
-      res.json(user);
-  } catch (err) {
-      res.status(500).json({ error: err.message });
-  }
-});
 // app.put(
 //   "/admin/profile",
 //   isAuthenticated,
