@@ -367,24 +367,41 @@ app.get(
   })
 );
 
-app.post('/update-profile-picture', upload.single('profile_picture'), async (req, res) => {
-  const { user_id } = req.body;
-  const profile_picture = req.file.buffer; // Binary data of the uploaded image
-
+// GET Profile Picture as Base64 for user_id = 59
+app.get("/profile-picture", async (req, res) => {
   try {
-    const result = await pool.query(
-      'UPDATE users SET profile_picture = $1 WHERE user_id = $2 AND usertype = 1 RETURNING *',
-      [profile_picture, user_id]
-    );
+    const userId = 59;
+    const result = await pool.query("SELECT profile_picture FROM users WHERE user_id = $1", [userId]);
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'User not found or not authorized' });
+    if (result.rows.length === 0 || !result.rows[0].profile_picture) {
+      return res.status(404).json({ message: "No profile picture found." });
     }
 
-    res.status(200).json({ message: 'Profile picture updated successfully', user: result.rows[0] });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.json({ profile_picture: result.rows[0].profile_picture.toString("base64") });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
+// POST Profile Picture as Base64 for user_id = 59
+app.post("/profile-picture", async (req, res) => {
+  try {
+    const userId = 59;
+    const { profile_picture } = req.body;
+
+    if (!profile_picture) {
+      return res.status(400).json({ message: "No image data provided." });
+    }
+
+    const imageBuffer = Buffer.from(profile_picture, "base64");
+
+    await pool.query("UPDATE users SET profile_picture = $1 WHERE user_id = $2", [imageBuffer, userId]);
+
+    res.json({ message: "Profile picture uploaded successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
   }
 });
 

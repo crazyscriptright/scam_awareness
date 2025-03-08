@@ -33,7 +33,7 @@ import AdminHome from './Components/Admin/AdminHome';
 import ExternalResourceHome from './Components/ExternalResources/ExternalResourcesHome';
 import ReportScam from './Components/User/ReportScam';
 import ContactUs from './Components/User/ContactUs';
-// import AdminProfile from './Components/Admin/AdminProfile';
+import AdminProfile from './Components/Admin/AdminProfile';
 import AdminProfiledup from './Components/Admin/AdminProfiledup'
 
 
@@ -51,6 +51,8 @@ const App = () => {
                 <Route path="/User/ReportScam" element={<ReportScam />}/>
                 <Route path='ContactUs' element={<ContactUs />}/>
                 <Route path ='/Admin/AdminProfiledup' element ={<AdminProfiledup/>} />
+                <Route path ='/Admin/AdminProfile' element ={<AdminProfile/>} />
+
             </Routes>
         </Router>
     </div>

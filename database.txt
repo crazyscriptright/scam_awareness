@@ -8,7 +8,7 @@ CREATE TABLE users (
     profile_picture BYTEA DEFAULT NULL, -- New column for profile picture
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    user_type int defaults 0
+    user_type INT DEFAULT 0
 );
 -- Step 2: Create the trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
