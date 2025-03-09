@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FaUser, FaKey, FaSignOutAlt, FaCamera, FaUserCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import WithAuth from "../hooks/WithAuth";
+
 
 const AdminProfile = () => {
   const [user, setUser] = useState({ name: "User", profilePic: "" });
@@ -231,4 +233,4 @@ const AdminProfile = () => {
   );
 };
 
-export default AdminProfile;
+export default WithAuth(AdminProfile);

@@ -1,3 +1,4 @@
+import WithAuth from "../hooks/WithAuth";
 import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 import axios from "axios";
@@ -108,4 +109,4 @@ const ScamReportsChart = () => {
   );
 };
 
-export default ScamReportsChart;
+export default WithAuth(ScamReportsChart);

@@ -11,7 +11,8 @@ import ScamReportsTable from "./ScamReportsTable";
 import AllScamReportsTable from "./AllScamReportsTable";
 import UserManagement from "./UserManagement";
 import ContactUsView from "./ContactUsView";
-import AdminNavbardup from "./AdminNavbar";
+import Footer from "../User/Footer";
+
 
 const AdminHome = () => {
   const [totalUsers, setTotalUsers] = useState(0);
@@ -73,15 +74,17 @@ const AdminHome = () => {
   return (
     <div id="home" className="flex flex-col h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow p-4 flex flex-wrap justify-between items-center">
+      <header className="bg-white shadow flex flex-wrap justify-between items-center">
         <AdminNavbar />
+        
         <div className="absolute top-2 right-4 z-50">
           <AdminProfile />
         </div>
       </header>
 
       {/* Dashboard Content */}
-      <main className="p-4 md:p-6 flex-1 overflow-y-auto">
+      <main className=" flex-1 overflow-y-auto">
+        <div className="p-4 md:p-6">
         <div id="User_Metrics"className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
           {/* Total Registrations */}
           <motion.div 
@@ -201,7 +204,10 @@ const AdminHome = () => {
               <UserManagement />
             </div>
           </motion.div>
+          
         </div>
+        </div>
+          <Footer/>
       </main>
     </div>
   );

@@ -7,6 +7,8 @@ import dayjs from "dayjs";
 import ModalImage from "react-modal-image";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
+import WithAuth from "../hooks/WithAuth";
+
 
 const ContactUsView = () => {
   const [contacts, setContacts] = useState([]);
@@ -201,4 +203,4 @@ const ContactUsView = () => {
   );
 };
 
-export default ContactUsView;
+export default WithAuth(ContactUsView);

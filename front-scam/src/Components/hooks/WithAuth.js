@@ -4,27 +4,33 @@ import axios from "axios";
 
 const WithAuth = (WrappedComponent) => {
   const AuthComponent = (props) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authStatus, setAuthStatus] = useState("checking"); // 'checking', 'authenticated', 'denied'
     const navigate = useNavigate();
 
     useEffect(() => {
-      axios
-        .get("http://localhost:5000/session", { withCredentials: true })
+      axios.get("http://localhost:5000/session", { withCredentials: true })
         .then((res) => {
-          if (res.data.loggedIn) {
-            setIsAuthenticated(true);
+          // Check for both login status and admin privileges
+          if (res.data.loggedIn && res.data.user?.userType === 1) {
+            setAuthStatus("authenticated");
           } else {
+            setAuthStatus("denied");
             navigate("/login");
           }
         })
         .catch((err) => {
           console.error("Session check error", err);
+          setAuthStatus("denied");
           navigate("/login");
         });
     }, [navigate]);
 
-    if (!isAuthenticated) {
-      return <div>Loading...</div>; // or a loading spinner
+    if (authStatus === "checking") {
+      return <div>Loading...</div>;
+    }
+
+    if (authStatus === "denied") {
+      return null; // Already redirected, but could show a message briefly
     }
 
     return <WrappedComponent {...props} />;

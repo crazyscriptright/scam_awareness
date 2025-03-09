@@ -5,6 +5,8 @@ import { FaSyncAlt } from "react-icons/fa";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { FaEye, } from "react-icons/fa";
+import WithAuth from "../hooks/WithAuth";
+
 
 
 
@@ -312,4 +314,4 @@ const AllScamReportsTable = () => {
   );
 };
 
-export default AllScamReportsTable;
+export default WithAuth(AllScamReportsTable);

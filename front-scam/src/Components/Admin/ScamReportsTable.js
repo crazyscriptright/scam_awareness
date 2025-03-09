@@ -1,3 +1,4 @@
+import WithAuth from "../hooks/WithAuth";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -80,14 +81,25 @@ const ScamReportsTable = () => {
       setCancellationModalVisible(true);
     } else {
       try {
+        // Step 1: Update the status in the admin_approval table
         await axios.put(`http://localhost:5000/admin-approval/${record.report_id}`, {
           report_status: newStatus,
         });
+  
+        // Step 2: Create a new entry in the external_resources table
+        await axios.post(`http://localhost:5000/external-resources-status-update`, {
+          verification_id: record.report_id, // Assuming verification_id is part of the record
+          report_status: newStatus,
+        });
+  
+        // Fetch the updated reports
         fetchReports();
-        message.success(`Status updated to ${newStatus}`); // Success message
+  
+        // Success message
+        message.success(`Status updated to ${newStatus} and external resource created.`);
       } catch (error) {
-        console.error("Error updating status:", error);
-        message.error("Failed to update status. Please try again.");
+        console.error("Error updating status or creating external resource:", error);
+        message.error("Failed to update status or create external resource. Please try again.");
       }
     }
   };
@@ -356,4 +368,4 @@ const ScamReportsTable = () => {
   );
 };
 
-export default ScamReportsTable;
+export default WithAuth(ScamReportsTable);

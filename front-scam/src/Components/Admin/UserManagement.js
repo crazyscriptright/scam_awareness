@@ -1,3 +1,4 @@
+import WithAuth from "../hooks/WithAuth";
 import React, { useState } from "react";
 import axios from "axios";
 import { Form, Input, DatePicker, Button, message, Row, Col, Select } from "antd";
@@ -250,4 +251,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default WithAuth(UserManagement);

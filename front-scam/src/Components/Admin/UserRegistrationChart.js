@@ -1,3 +1,4 @@
+import WithAuth from "../hooks/WithAuth";
 import React, { useEffect, useState } from "react";
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import axios from "axios";
@@ -113,4 +114,4 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
   );
 };
 
-export default UserRegistrationChart;
+export default WithAuth(UserRegistrationChart);

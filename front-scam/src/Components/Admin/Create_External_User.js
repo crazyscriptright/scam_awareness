@@ -3,6 +3,8 @@ import axios from "axios";
 import { Form, Input, DatePicker, Button, message } from "antd";
 import { motion } from "framer-motion"; // For animations
 import { UserAddOutlined } from "@ant-design/icons"; // For icons
+import WithAuth from "../hooks/WithAuth";
+
 
 const { Item } = Form;
 const { Password } = Input;
@@ -126,4 +128,4 @@ const Create_External_User = () => {
   );
 };
 
-export default Create_External_User;
+export default WithAuth(Create_External_User);

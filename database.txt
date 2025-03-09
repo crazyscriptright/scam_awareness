@@ -1,3 +1,8 @@
+--pg_dump -U postgres -h localhost -W Scam_Awareness > sqlfile.sql  
+--pg_restore -U postgres -h localhost -p 5434 -d signup sqlfile.sql
+--run this command in runas adminstrator
+
+
 -- Step 1: Create the table
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,

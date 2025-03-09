@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Form, Input, Select, Button, message } from "antd";
 import { motion } from "framer-motion";
+import WithAuth from "../hooks/WithAuth";
+
 
 const { Item } = Form;
 const { Option } = Select;
@@ -82,4 +84,4 @@ const BlockUnblockUser = () => {
   );
 };
 
-export default BlockUnblockUser;
+export default WithAuth(BlockUnblockUser);

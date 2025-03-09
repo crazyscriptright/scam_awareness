@@ -38,7 +38,7 @@ const AdminNavbar = () => {
         setShowLogoutModal(false);
         setTimeout(() => {
           navigate("/"); // Redirect to home page
-        }, 3000); // Wait for 3 seconds
+        }, 500); // Wait for 3 seconds
       })
       .catch((err) => console.error("Logout error", err));
   };

@@ -78,12 +78,45 @@ const isAuthenticated = (req, res, next) => {
   next();
 };
 
+const isAuthenticatedAdmin = (req, res, next) => {
+  // Check if user exists in session
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Unauthorized access" });
+  }
+
+  // Check userType (note the capital T to match your session structure)
+  if (req.session.user.userType !== 1) {
+    return res.status(403).json({
+      error: "Forbidden: Admin privileges required"
+    });
+  }
+
+  next();
+};
+
+const isAuthenticatedexternal = (req, res, next) => {
+    // Check if user exists in session
+    if (!req.session.user) {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
+  
+    // Check userType (note the capital T to match your session structure)
+    if (req.session.user.userType !== 1) {
+      return res.status(403).json({
+        error: "Forbidden: ExternalUser privileges required"
+      });
+    }
+  
+    next();
+  };
+
 
 // CHECK SESSION
 app.get("/session", (req, res) => {
   if (req.session.user) {
     res.json({
       loggedIn: true,
+      user: req.session.user,
       userType: req.session.user.userType,
     });
   } else {
@@ -345,30 +378,30 @@ app.get(
 
 //#########Admin############
 // ADMIN PROFILE (GET & UPDATE)
-app.get(
-  "/admin/profile",
-  // isAuthenticated,
-  asyncHandler(async (req, res) => {
-    try {
-      const result = await pool.query(
-        "SELECT name, email, profile_picture FROM users WHERE user_id = 59 AND usertype = 1"//,
-        // [req.session.user.id]
-      );
+// app.get(
+//   "/admin/profile",
+//   // isAuthenticated,
+//   asyncHandler(async (req, res) => {
+//     try {
+//       const result = await pool.query(
+//         "SELECT name, email, profile_picture FROM users WHERE user_id = 59 AND usertype = 1"//,
+//         // [req.session.user.id]
+//       );
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: "Admin not found" });
-      }
+//       if (result.rows.length === 0) {
+//         return res.status(404).json({ error: "Admin not found" });
+//       }
 
-      res.json(result.rows[0]);
-    } catch (error) {
-      console.error("Admin profile error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
-    }
-  })
-);
+//       res.json(result.rows[0]);
+//     } catch (error) {
+//       console.error("Admin profile error:", error);
+//       res.status(500).json({ error: "Internal Server Error" });
+//     }
+//   })
+// );
 
 // GET Profile Picture with Authentication
-app.get("/profile-picture", isAuthenticated, async (req, res) => {
+app.get("/profile-picture", isAuthenticatedAdmin, async (req, res) => {
   try {
     const userId = req.session.user.id; // Remove array brackets
     const result = await pool.query(
@@ -394,7 +427,7 @@ app.get("/profile-picture", isAuthenticated, async (req, res) => {
 });
 
 // POST Profile Picture with Authentication
-app.post("/profile-picture", isAuthenticated, async (req, res) => {
+app.post("/profile-picture", isAuthenticatedAdmin, async (req, res) => {
   try {
     const userId = req.session.user.id; // Remove array brackets
     const { profile_picture } = req.body;
@@ -435,25 +468,25 @@ app.post("/profile-picture", isAuthenticated, async (req, res) => {
 //   })
 // );
 
-app.get("/api/admin/:user_id/profile", async (req, res) => {
-  const { user_id } = req.params;
+// app.get("/api/admin/:user_id/profile", async (req, res) => {
+//   const { user_id } = req.params;
 
-  try {
-    const result = await pool.query(
-      "SELECT profile_picture FROM users WHERE user_id = $1 AND usertype = 1",
-      [user_id]
-    );
+//   try {
+//     const result = await pool.query(
+//       "SELECT profile_picture FROM users WHERE user_id = $1 AND usertype = 1",
+//       [user_id]
+//     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Profile not found" });
-    }
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({ message: "Profile not found" });
+//     }
 
-    res.status(200).json({ profile_picture: result.rows[0].profile_picture });
-  } catch (error) {
-    console.error("Error fetching profile:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
+//     res.status(200).json({ profile_picture: result.rows[0].profile_picture });
+//   } catch (error) {
+//     console.error("Error fetching profile:", error);
+//     res.status(500).json({ message: "Internal Server Error" });
+//   }
+// });
 
 
 //##########Admin Dashboard ##########
@@ -596,6 +629,28 @@ app.put("/admin-approval/:report_id", async (req, res) => {
   } catch (error) {
     console.error("Error updating report:", error);
     res.status(500).json({ error: "Error updating report" });
+  }
+});
+
+
+// API to create a new entry in external_resources table
+app.post("/external-resources-status-update", async (req, res) => {
+  const { verification_id, report_status } = req.body;
+
+  try {
+    const query = `
+      INSERT INTO external_resources (verification_id, report_status)
+      VALUES ($1, $2)
+      RETURNING *;
+    `;
+    const values = [verification_id, report_status];
+
+    const result = await pool.query(query, values);
+
+    res.status(201).json({ message: "External resource created successfully", data: result.rows[0] });
+  } catch (error) {
+    console.error("Error creating external resource:", error);
+    res.status(500).json({ error: "Failed to create external resource" });
   }
 });
 
@@ -743,20 +798,7 @@ app.get("/api/contacts/:contact_id/attachment", async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-// Fetch all contacts endpoint
-// app.get("/api/contactus", async (req, res) => {
-//   try {
-//     const result = await pool.query("SELECT * FROM contacts ORDER BY submitted_at DESC");
-//     const contacts = result.rows.map((contact) => ({
-//       ...contact,
-//       attachment: contact.attachment ? contact.attachment.toString("base64") : null,
-//     }));
-//     res.status(200).json(contacts);
-//   } catch (error) {
-//     console.error("Error fetching contacts:", error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// });
+
 app.post(
   "/contact",
   isAuthenticated,
