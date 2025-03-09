@@ -367,27 +367,36 @@ app.get(
   })
 );
 
-// GET Profile Picture as Base64 for user_id = 59
-app.get("/profile-picture", async (req, res) => {
+// GET Profile Picture with Authentication
+app.get("/profile-picture", isAuthenticated, async (req, res) => {
   try {
-    const userId = 59;
-    const result = await pool.query("SELECT profile_picture FROM users WHERE user_id = $1", [userId]);
+    const userId = req.session.user.id; // Remove array brackets
+    const result = await pool.query(
+      "SELECT profile_picture, name FROM users WHERE user_id = $1",
+      [userId]
+    );
 
-    if (result.rows.length === 0 || !result.rows[0].profile_picture) {
-      return res.status(404).json({ message: "No profile picture found." });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
     }
 
-    res.json({ profile_picture: result.rows[0].profile_picture.toString("base64") });
+    const userData = result.rows[0];
+    res.json({
+      name: userData.name,
+      profile_picture: userData.profile_picture 
+        ? userData.profile_picture.toString("base64")
+        : null
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error." });
   }
 });
 
-// POST Profile Picture as Base64 for user_id = 59
-app.post("/profile-picture", async (req, res) => {
+// POST Profile Picture with Authentication
+app.post("/profile-picture", isAuthenticated, async (req, res) => {
   try {
-    const userId = 59;
+    const userId = req.session.user.id; // Remove array brackets
     const { profile_picture } = req.body;
 
     if (!profile_picture) {
@@ -395,8 +404,10 @@ app.post("/profile-picture", async (req, res) => {
     }
 
     const imageBuffer = Buffer.from(profile_picture, "base64");
-
-    await pool.query("UPDATE users SET profile_picture = $1 WHERE user_id = $2", [imageBuffer, userId]);
+    await pool.query(
+      "UPDATE users SET profile_picture = $1 WHERE user_id = $2",
+      [imageBuffer, userId]
+    );
 
     res.json({ message: "Profile picture uploaded successfully." });
   } catch (error) {

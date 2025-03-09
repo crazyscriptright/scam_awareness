@@ -34,7 +34,9 @@ import ExternalResourceHome from './Components/ExternalResources/ExternalResourc
 import ReportScam from './Components/User/ReportScam';
 import ContactUs from './Components/User/ContactUs';
 import AdminProfile from './Components/Admin/AdminProfile';
-import AdminProfiledup from './Components/Admin/AdminProfiledup'
+import AdminProfileup from './Components/Admin/AdminProfileup';
+import AdminProfileget from './Components/Admin/AdminProfileget';
+
 
 
 const App = () => {
@@ -50,7 +52,8 @@ const App = () => {
                 <Route path="/ExternalResources/ExternalResourcesHome" element = {<ExternalResourceHome />}/>
                 <Route path="/User/ReportScam" element={<ReportScam />}/>
                 <Route path='ContactUs' element={<ContactUs />}/>
-                <Route path ='/Admin/AdminProfiledup' element ={<AdminProfiledup/>} />
+                <Route path ='/Admin/AdminProfileup' element ={<AdminProfileup/>} />
+                <Route path ='/Admin/AdminProfileget' element ={<AdminProfileget/>} />
                 <Route path ='/Admin/AdminProfile' element ={<AdminProfile/>} />
 
             </Routes>

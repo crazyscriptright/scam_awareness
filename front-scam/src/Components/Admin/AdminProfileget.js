@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const AdminProfiledup = () => {
+const AdminProfileget = () => {
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -22,4 +22,4 @@ const AdminProfiledup = () => {
   );
 };
 
-export default AdminProfiledup;
+export default AdminProfileget;

@@ -16,15 +16,16 @@ const AdminProfile = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch Admin Profile
+  // Fetch Admin Profile and Picture
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/admin/profile", { withCredentials: true })
-      .then((res) => {
+    axios.get("http://localhost:5000/profile-picture", { withCredentials: true })
+    .then((res) => {
         if (res.data) {
           setUser({
             name: res.data.name || "User",
-            profilePic: res.data.profilePic || "",
+            profilePic: res.data.profile_picture 
+              ? `data:image/png;base64,${res.data.profile_picture}`
+              : "",
           });
         }
       })
@@ -33,14 +34,11 @@ const AdminProfile = () => {
 
   // Handle Logout
   const handleLogout = () => {
-    axios
-      .post("http://localhost:5000/logout", {}, { withCredentials: true })
-      .then(() => {
+    axios.post("http://localhost:5000/logout", {}, { withCredentials: true })
+    .then(() => {
         setUser({ name: "User", profilePic: "" });
         setLogoutMessage("You are being logged out...");
-        setTimeout(() => {
-          navigate("/"); // Redirect to home page
-        }, 3000); // Wait for 3 seconds
+        setTimeout(() => navigate("/"), 3000);
       })
       .catch((err) => console.error("Logout error", err));
   };
@@ -52,13 +50,8 @@ const AdminProfile = () => {
       return;
     }
 
-    axios
-      .post(
-        "http://localhost:5000/update-password",
-        { newPassword },
-        { withCredentials: true }
-      )
-      .then(() => {
+    axios.post("http://localhost:5000/update-password", { newPassword }, { withCredentials: true })
+    .then(() => {
         alert("Password updated successfully!");
         setNewPassword("");
         setConfirmPassword("");
@@ -72,21 +65,17 @@ const AdminProfile = () => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Convert the image file to Base64
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
-      const base64Image = reader.result; // Base64-encoded image
+      const base64Data = reader.result.split(",")[1]; // Get only the Base64 part
 
-      // Send the Base64-encoded image to the backend
-      axios
-        .post(
-          "http://localhost:5000/update-profile-picture",
-          { profilePicture: base64Image },
-          { withCredentials: true }
-        )
-        .then((res) => {
-          setUser((prev) => ({ ...prev, profilePic: res.data.profilePic }));
+      axios.post("http://localhost:5000/profile-picture", { profile_picture: base64Data }, { withCredentials: true })
+      .then(() => {
+          setUser(prev => ({
+            ...prev,
+            profilePic: `data:image/png;base64,${base64Data}`
+          }));
           alert("Profile picture updated successfully!");
           setIsProfileModalOpen(false);
         })
@@ -130,7 +119,6 @@ const AdminProfile = () => {
             Hello, {user.name}!
           </div>
 
-          {/* Update Password Modal Trigger */}
           <button
             onClick={() => setIsPasswordModalOpen(true)}
             className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full"
@@ -139,7 +127,6 @@ const AdminProfile = () => {
             <span>Change Password</span>
           </button>
 
-          {/* Update Profile Picture Modal Trigger */}
           <button
             onClick={() => setIsProfileModalOpen(true)}
             className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full"
@@ -148,7 +135,6 @@ const AdminProfile = () => {
             <span>Update Picture</span>
           </button>
 
-          {/* Logout Button */}
           <button
             onClick={handleLogout}
             className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full text-red-500"
@@ -227,12 +213,6 @@ const AdminProfile = () => {
                 onClick={() => setIsProfileModalOpen(false)}
               >
                 Cancel
-              </button>
-              <button
-                className="bg-purple-500 text-white px-3 py-1 rounded hover:bg-purple-600"
-                onClick={() => setIsProfileModalOpen(false)}
-              >
-                Done
               </button>
             </div>
           </div>
