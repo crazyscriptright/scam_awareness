@@ -52,6 +52,15 @@ const Create_External_User = () => {
   };
 
   return (
+  <div id="home" className="flex flex-col h-screen bg-gray-100">
+    {/* Header */}
+    <header className="bg-white shadow flex flex-wrap justify-between items-center">
+      <AdminNavbar />
+      
+      <div className="absolute top-2 right-4 z-50">
+        <AdminProfile />
+      </div>
+    </header>
     <motion.div
       initial={{ opacity: 0, y: -20 }} // Initial animation state
       animate={{ opacity: 1, y: 0 }} // Animate to this state
@@ -132,6 +141,7 @@ const Create_External_User = () => {
         </Item>
       </Form>
     </motion.div>
+    </div>
   );
 };
 

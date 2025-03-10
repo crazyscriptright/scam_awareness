@@ -191,9 +191,9 @@ const ScamReportsTable = () => {
       responsive: ["lg"],
       render: (text) => (
         <div>
-          {text.length >15 ? (
+          {text.length >10 ? (
             <>
-            {text.substring(0,15)}...
+            {text.substring(0,10)}...
             <Button type="link" icon={<FaEye/>} onClick={() => handleOpenModal(text)} />
             </>
           ) : (

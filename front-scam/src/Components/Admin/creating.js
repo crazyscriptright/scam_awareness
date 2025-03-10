@@ -1,40 +1,37 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 const Creating = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    dob: '',
-    email: '',
-    password: '',
+    name: "",
+    dob: "",
+    email: "",
+    password: "", // Added password field
   });
-
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const response = await axios.post('/api/create_external_user', formData);
-      setMessage('User created successfully!');
-      console.log('User created:', response.data);
+      const response = await axios.post(
+        "http://localhost:5000/api/create_external_user",
+        formData
+      );
+      setMessage("User created successfully!");
+      console.log("User Created:", response.data);
     } catch (error) {
-      setMessage('Failed to create user.');
-      console.error('Error creating user:', error);
+      setMessage("Failed to create user");
+      console.error("Error:", error);
     }
   };
 
   return (
     <div>
-      <h1>Create External User</h1>
+      <h2>Create External User</h2>
       <form onSubmit={handleSubmit}>
         <div>
           <label>Name:</label>

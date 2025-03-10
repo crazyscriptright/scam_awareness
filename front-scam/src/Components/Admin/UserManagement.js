@@ -11,6 +11,7 @@ import {
   IdcardOutlined, 
   InfoCircleOutlined 
 } from "@ant-design/icons"; // For icons
+import dayjs from "dayjs"; // For date formatting
 
 const { Item } = Form;
 const { Password, TextArea } = Input;
@@ -30,7 +31,7 @@ const UserManagement = () => {
       setCreateUserLoading(true);
       const response = await axios.post("http://localhost:5000/api/create_external_user", {
         name,
-        dob: dob.format("YYYY-MM-DD"), // Format date
+        dob: dayjs(dob).format("YYYY-MM-DD"), // Format date
         email: email.toLowerCase(), // Convert email to lowercase
         password,
       });
@@ -120,6 +121,7 @@ const UserManagement = () => {
                   <DatePicker 
                     className="w-full p-2 border rounded"
                     suffixIcon={<CalendarOutlined className="text-gray-400" />}
+                    onChange={(date) => createUserForm.setFieldsValue({ dob: date })} // Bind the selected date to the form
                   />
                 </motion.div>
               </Item>

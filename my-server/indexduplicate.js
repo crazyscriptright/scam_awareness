@@ -21,11 +21,11 @@ const failedAttempts = {}; // { email: { count: 0, lastAttempt: Date } }
 
 // PostgreSQL Connection (Port 5434)
 const pool = new Pool({
-  user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
-  database: process.env.DB_NAME || "scam_awareness",
+  user: process.env.DB_USER ,
+  host: process.env.DB_HOST ,
+  database: process.env.DB_NAME ,
   password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5434,
+  port: process.env.DB_PORT,
 });
 
 // Middleware
@@ -684,19 +684,24 @@ app.post("/api/create_external_user", async (req, res) => {
   const { name, dob, email, password } = req.body;
 
   try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    // Insert user into the database with hashed password
     const result = await pool.query(
       `INSERT INTO users (name, dob, email, password, usertype)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [name, dob, email, password, 2] // user_type is set to 2
+      [name, dob, email, hashedPassword, 2] // user_type is set to 2
     );
 
-    res.status(201).json(result.rows[0]);
+    res.status(201).json({ message: "User created successfully", user: result.rows[0] });
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ message: "Failed to create user", error });
   }
 });
+
 
 //###########Contact##########
 // Fetch all contact details

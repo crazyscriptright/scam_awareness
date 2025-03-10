@@ -132,7 +132,7 @@ const AllScamReportsTable = () => {
       key: "description",
       render: (text) => (
         <div>
-          {text.length > 15 ? `${text.substring(0, 50)}...` : text}
+          {text.length > 15 ? `${text.substring(0, 15)}...` : text}
           {text.length > 15 && (
             <Button type="link" icon={<FaEye />} onClick={() => handleReadMore(text)}>
             </Button>
