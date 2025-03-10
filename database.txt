@@ -256,55 +256,33 @@ BEFORE UPDATE OF report_status ON external_resources
 FOR EACH ROW
 EXECUTE FUNCTION update_completion_time();
 
---updating admin_approval 
-
-CREATE OR REPLACE FUNCTION update_admin_approval()
+-- Step 1: Create the function that updates the scam_reports table
+CREATE OR REPLACE FUNCTION update_scam_report_status()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Update the admin_approval table based on the report_status change
-    UPDATE admin_approval
-    SET report_status = NEW.report_status
-    WHERE verification_id = NEW.verification_id;
-    RETURN NEW;  -- Return the modified record
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER update_admin_approval_status
-AFTER UPDATE OF report_status ON external_resources
-FOR EACH ROW
-EXECUTE FUNCTION update_admin_approval();-- Step 1: Create the trigger function
-CREATE OR REPLACE FUNCTION update_report_status_from_external_resources()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- For INSERT operations, update the report_status in the admin_approval table
-    IF TG_OP = 'INSERT' THEN
-        UPDATE admin_approval
-        SET report_status = NEW.report_status
-        WHERE verification_id = NEW.verification_id;  -- Assuming verified_id is the foreign key in external_resources
+    -- Check if the report_status in external_resources has been updated
+    IF NEW.report_status IS DISTINCT FROM OLD.report_status THEN
+        -- Update the report_status in scam_reports table
+        UPDATE scam_reports
+        SET report_status = NEW.report_status,
+            last_modified = CURRENT_TIMESTAMP
+        WHERE report_id = (
+            SELECT verification_id
+            FROM external_resources
+            WHERE external_resources_id = NEW.external_resources_id
+        );
     END IF;
 
-    -- For UPDATE operations, update the report_status in the admin_approval table if it changes
-    IF TG_OP = 'UPDATE' AND OLD.report_status IS DISTINCT FROM NEW.report_status THEN
-        UPDATE admin_approval
-        SET report_status = NEW.report_status
-        WHERE verification_id = NEW.verification_id;  -- Assuming verified_id is the foreign key in external_resources
-    END IF;
-
-    -- Return the new record to complete the operation
+    -- Return the new record
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Step 2: Drop the existing trigger if it exists
-DROP TRIGGER IF EXISTS trigger_update_report_status ON external_resources;
-
--- Step 3: Create a new trigger for both INSERT and UPDATE operations
-CREATE TRIGGER trigger_update_report_status
-AFTER INSERT OR UPDATE ON external_resources
+-- Step 2: Create the trigger that calls the function after an update on external_resources
+CREATE TRIGGER trg_after_update_external_resources
+AFTER UPDATE ON external_resources
 FOR EACH ROW
-EXECUTE FUNCTION update_report_status_from_external_resources();
-
-
+EXECUTE FUNCTION update_scam_report_status();
 
 -- Create a view to display the filtered data
 CREATE OR REPLACE VIEW scam_report_details AS

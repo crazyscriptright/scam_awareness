@@ -24,7 +24,7 @@ const pool = new Pool({
   user: process.env.DB_USER || "postgres",
   host: process.env.DB_HOST || "localhost",
   database: process.env.DB_NAME || "scam_awareness",
-  password: process.env.DB_PASSWORD || "password",
+  password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT || 5434,
 });
 
@@ -685,7 +685,7 @@ app.post("/api/create_external_user", async (req, res) => {
 
   try {
     const result = await pool.query(
-      `INSERT INTO users (name, dob, email, password, user_type)
+      `INSERT INTO users (name, dob, email, password, usertype)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
       [name, dob, email, password, 2] // user_type is set to 2

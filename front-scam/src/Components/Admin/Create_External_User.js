@@ -15,24 +15,31 @@ const Create_External_User = () => {
 
   // Handle form submission
   const handleSubmit = async (values) => {
-    const { name, dob, email, password } = values;
-
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:5000/api/create_external_user", {
-        name,
-        dob: dob.format("YYYY-MM-DD"), // Format date
-        email: email.toLowerCase(), // Convert email to lowercase
-        password,
-      });
-
-      if (response.data) {
+      const response = await axios.post(
+        "http://localhost:5000/api/create_external_user",
+        {
+          name: values.name,
+          dob: values.dob.format("YYYY-MM-DD"),
+          email: values.email.toLowerCase(),
+          password: values.password,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          // withCredentials: true // Uncomment if using cookies
+        }
+      );
+  
+      if (response.data.success) {
         message.success("User created successfully!");
-        form.resetFields(); // Reset the form
+        form.resetFields();
       }
     } catch (error) {
-      console.error("Error creating user:", error);
-      message.error("Failed to create user. Please try again.");
+      const errorMessage = error.response?.data?.message || error.message;
+      message.error(`Error: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
