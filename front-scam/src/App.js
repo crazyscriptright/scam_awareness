@@ -8,7 +8,6 @@ import AdminHome from "./Components/Admin/AdminHome";
 import ExternalResourceHome from "./Components/ExternalResources/ExternalResourcesHome";
 import ReportScam from "./Components/User/ReportScam";
 import ContactUs from "./Components/User/ContactUs";
-import Creating from "./Components/Admin/creating"
 
 
 
@@ -25,7 +24,6 @@ const App = () => {
                 <Route path="/ExternalResources/ExternalResourcesHome" element = {<ExternalResourceHome />}/>
                 <Route path="/User/ReportScam" element={<ReportScam />}/>
                 <Route path='/ContactUs' element={<ContactUs />}/>
-                <Route path='/Creating' element={<Creating />}/>
 
             </Routes>
         </Router>

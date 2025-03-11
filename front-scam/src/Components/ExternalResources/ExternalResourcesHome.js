@@ -1,6 +1,8 @@
 import cisa from './img/cisa.png'
 import doj from './img/doj.png'
 import ftc from './img/ftc.png'
+import ExternalNavbar from "./ExtrnalNavbar"; // Import your AdminNavbar component
+import ExternalProfile from "./ExternalProfile"; // Import your AdminProfile component
 import React, { useState } from "react";
 import {
   FaSearch,
@@ -160,12 +162,22 @@ const ExternalResourceHome = () => {
   const filteredTestimonials = filterData(testimonials, searchQuery);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Hero Section */}
-      <div
-        className="relative bg-cover bg-center h-80 flex items-center justify-center text-center text-white"
-        style={{ backgroundImage: "url('https://source.unsplash.com/1600x900/?cybersecurity,hacking')" }}
-      >
+    <div id="home" className="flex flex-col h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow flex flex-wrap justify-between items-center">
+        <ExternalNavbar />
+        <div className="absolute top-2 right-4 z-50">
+          <ExternalProfile />
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Hero Section */}
+        <div
+          className="relative bg-cover bg-center h-80 flex items-center justify-center text-center text-white"
+          style={{ backgroundImage: "url('https://source.unsplash.com/1600x900/?cybersecurity,hacking')" }}
+        >
         <div className="bg-black bg-opacity-60 p-6 rounded-lg">
           <h1 className="text-3xl font-bold">Investigation Resource Hub</h1>
           <p className="mt-2 text-lg">Find trusted external resources for fraud investigations and security reports.</p>
@@ -282,6 +294,7 @@ const ExternalResourceHome = () => {
       <footer className="mt-12 bg-gray-800 text-white text-center py-4">
         <p>© {new Date().getFullYear()} Investigation Resource Hub. All rights reserved.</p>
       </footer>
+    </div>
     </div>
   );
 };

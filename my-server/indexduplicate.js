@@ -101,7 +101,7 @@ const isAuthenticatedexternal = (req, res, next) => {
     }
   
     // Check userType (note the capital T to match your session structure)
-    if (req.session.user.userType !== 1) {
+    if (req.session.user.userType !== 2) {
       return res.status(403).json({
         error: "Forbidden: ExternalUser privileges required"
       });
@@ -377,29 +377,6 @@ app.get(
 
 
 //#########Admin############
-// ADMIN PROFILE (GET & UPDATE)
-// app.get(
-//   "/admin/profile",
-//   // isAuthenticated,
-//   asyncHandler(async (req, res) => {
-//     try {
-//       const result = await pool.query(
-//         "SELECT name, email, profile_picture FROM users WHERE user_id = 59 AND usertype = 1"//,
-//         // [req.session.user.id]
-//       );
-
-//       if (result.rows.length === 0) {
-//         return res.status(404).json({ error: "Admin not found" });
-//       }
-
-//       res.json(result.rows[0]);
-//     } catch (error) {
-//       console.error("Admin profile error:", error);
-//       res.status(500).json({ error: "Internal Server Error" });
-//     }
-//   })
-// );
-
 // GET Profile Picture with Authentication
 app.get("/profile-picture", isAuthenticatedAdmin, async (req, res) => {
   try {
@@ -448,45 +425,6 @@ app.post("/profile-picture", isAuthenticatedAdmin, async (req, res) => {
     res.status(500).json({ message: "Server error." });
   }
 });
-
-// app.put(
-//   "/admin/profile",
-//   isAuthenticated,
-//   asyncHandler(async (req, res) => {
-//     try {
-//       const { name, email } = req.body;
-//       await pool.query(
-//         "UPDATE users SET name = $1, email = $2 WHERE user_id = $3 AND usertype = 1",
-//         [name, email, req.session.user.id]
-//       );
-
-//       res.json({ message: "Profile updated successfully" });
-//     } catch (error) {
-//       console.error("Admin profile update error:", error);
-//       res.status(500).json({ error: "Internal Server Error" });
-//     }
-//   })
-// );
-
-// app.get("/api/admin/:user_id/profile", async (req, res) => {
-//   const { user_id } = req.params;
-
-//   try {
-//     const result = await pool.query(
-//       "SELECT profile_picture FROM users WHERE user_id = $1 AND usertype = 1",
-//       [user_id]
-//     );
-
-//     if (result.rows.length === 0) {
-//       return res.status(404).json({ message: "Profile not found" });
-//     }
-
-//     res.status(200).json({ profile_picture: result.rows[0].profile_picture });
-//   } catch (error) {
-//     console.error("Error fetching profile:", error);
-//     res.status(500).json({ message: "Internal Server Error" });
-//   }
-// });
 
 
 //##########Admin Dashboard ##########
@@ -872,17 +810,55 @@ app.get("/download/:contact_id", async (req, res) => {
   }
 });
 
+// ###########External resource#############
+// External profile picture
+app.get("/external-profile-picture",isAuthenticatedexternal, async (req, res) => {
+  try {
+    const userId = req.session.user.id; // Remove array brackets
+    const result = await pool.query(
+      "SELECT profile_picture, name FROM users WHERE user_id = $1",
+      [userId]
+    );
 
-// app.post("/resolve-report", isAuthenticated, asyncHandler(async (req, res) => {
-//   try {
-//     await pool.query("UPDATE users SET report_status = 'Cancelled' WHERE user_id = $1", [req.session.user.id]);
-//     res.json({ message: "Report status updated to Cancelled" });
-//   } catch (error) {
-//     console.error("Resolve report error:", error);
-//     res.status(500).json({ error: "Internal Server Error" });
-//   }
-// }));
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User not found." });
+    }
 
+    const userData = result.rows[0];
+    res.json({
+      name: userData.name,
+      profile_picture: userData.profile_picture 
+        ? userData.profile_picture.toString("base64")
+        : null
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+
+// POST Profile Picture with Authentication
+app.post("/external-profile-picture", isAuthenticatedexternal, async (req, res) => {
+  try {
+    const userId = req.session.user.id; // Remove array brackets
+    const { profile_picture } = req.body;
+
+    if (!profile_picture) {
+      return res.status(400).json({ message: "No image data provided." });
+    }
+
+    const imageBuffer = Buffer.from(profile_picture, "base64");
+    await pool.query(
+      "UPDATE users SET profile_picture = $1 WHERE user_id = $2",
+      [imageBuffer, userId]
+    );
+
+    res.json({ message: "Profile picture uploaded successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error." });
+  }
+});
 
 // LOGOUT
 app.post("/logout", (req, res) => {
