@@ -1,3 +1,4 @@
+import { FaChartLine } from 'react-icons/fa'; // Import the chosen icon
 import React, { useState } from "react";
 import { HashLink } from "react-router-hash-link";
 import { useNavigate } from "react-router-dom";
@@ -92,15 +93,14 @@ const AdminNavbar = () => {
 
         {/* Navigation links */}
         <nav className="mt-10">
-          <HashLink
-            smooth
-            to="#User_Metrics"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaChartBar className="inline-block mr-2 text-blue-500" /> User
-            Metrics
-          </HashLink>
+        <HashLink
+          smooth
+          to="#User_Metrics"
+          className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+          onClick={closeSidebar}
+        >
+          <FaChartLine className="inline-block mr-2 text-blue-500" /> User Metrics
+        </HashLink>
           <HashLink
             smooth
             to="#Analytics"

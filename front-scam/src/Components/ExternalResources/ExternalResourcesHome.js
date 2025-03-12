@@ -4,6 +4,8 @@ import ftc from './img/ftc.png'
 import ExternalNavbar from "./ExtrnalNavbar"; // Import your AdminNavbar component
 import ExternalProfile from "./ExternalProfile"; // Import your AdminProfile component
 import React, { useState } from "react";
+import WithAuthEx from "../hooks/WithAuthEx";
+
 import {
   FaSearch,
   FaShieldAlt,
@@ -202,7 +204,7 @@ const ExternalResourceHome = () => {
       <div className="max-w-6xl mx-auto mt-6">
         {/* Resources */}
         <h2 className="text-2xl font-semibold text-gray-800 text-center">Resources</h2>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div id="resources" className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredResources.length > 0 ? (
             filteredResources.map((resource) => (
               <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
@@ -221,7 +223,7 @@ const ExternalResourceHome = () => {
 
         {/* Reports */}
         <h2 className="text-2xl font-semibold text-gray-800 text-center mt-12">Latest Investigation Reports</h2>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="investigation_reports"  className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredReports.map((report) => (
             <div key={report.id} className="bg-white p-4 shadow-md rounded-lg">
               <FaFileAlt className="text-red-600 text-3xl mb-2" />
@@ -236,7 +238,7 @@ const ExternalResourceHome = () => {
 
         {/* Featured Resources */}
         <h2 className="text-2xl font-semibold text-gray-800 text-center mt-12">Featured Resources</h2>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div id="featured_resources" className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredFeaturedResources.map((resource) => (
             <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center">
               {resource.icon}
@@ -251,7 +253,7 @@ const ExternalResourceHome = () => {
 
         {/* News & Updates */}
         <h2 className="text-2xl font-semibold text-gray-800 text-center mt-12">News & Updates</h2>
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div id="news" className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredNewsUpdates.map((news) => (
             <div key={news.id} className="bg-white p-4 shadow-md rounded-lg">
               <h4 className="font-semibold">{news.title}</h4>
@@ -299,4 +301,4 @@ const ExternalResourceHome = () => {
   );
 };
 
-export default ExternalResourceHome;
+export default WithAuthEx(ExternalResourceHome);

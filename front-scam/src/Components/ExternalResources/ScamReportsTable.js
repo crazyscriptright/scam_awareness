@@ -1,8 +1,8 @@
 import WithAuth from "../hooks/WithAuth";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // Added useMemo
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Table, Input, Select, Button, message, Spin, Progress, Modal } from "antd";
+import { Table, Input, Select, Button, message, Spin, Progress, Modal, DatePicker } from "antd";
 import { FaSort, FaFilter, FaSyncAlt, FaEye } from "react-icons/fa";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Viewer, Worker } from "@react-pdf-viewer/core";
@@ -12,11 +12,20 @@ import ModalImage from "react-modal-image";
 import ReactAudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/lib/styles.css";
 import dayjs from "dayjs";
+import WithAuthEx from "../hooks/WithAuthEx";
+
+
+const { RangePicker } = DatePicker;
 
 const ScamReportsTable = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState({ scamType: "", reportStatus: "" });
+  const [filters, setFilters] = useState({
+    user_id: "",
+    scam_type: "",
+    report_status: "",
+    scam_date_range: null,
+  });
   const [sortedInfo, setSortedInfo] = useState({});
   const [proofModalVisible, setProofModalVisible] = useState(false);
   const [proofData, setProofData] = useState(null);
@@ -25,8 +34,9 @@ const ScamReportsTable = () => {
   const [currentReport, setCurrentReport] = useState(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [expandedRows, setExpandedRows] = useState({});
-  const [modalVisible, setModalVisible] =useState(false);
-  const [selectedMessage, setSelectedMessage] =useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedMessage, setSelectedMessage] = useState("");
+  const [pendingStatus, setPendingStatus] = useState("");
 
   const toggleExpand = (reportId) => {
     setExpandedRows((prev) => ({
@@ -47,10 +57,12 @@ const ScamReportsTable = () => {
     "Other",
   ];
 
+  // Fetch reports on component mount
   useEffect(() => {
     fetchReports();
   }, []);
 
+  // Fetch reports from the API
   const fetchReports = async () => {
     setLoading(true);
     try {
@@ -62,57 +74,66 @@ const ScamReportsTable = () => {
     }
     setLoading(false);
   };
+
+  // Open modal to display full description
   const handleOpenModal = (message) => {
     setSelectedMessage(message);
     setModalVisible(true);
   };
 
+  // Handle filter changes
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Reset all filters
   const resetFilters = () => {
-    setFilters({ scamType: "", reportStatus: "" });
+    setFilters({
+      user_id: "",
+      scam_type: "",
+      report_status: "",
+      scam_date_range: null,
+    });
   };
 
+  // Update report status
   const updateStatus = async (record, newStatus) => {
-    if (newStatus === "Closed") {
+    if (newStatus === "Closed" || newStatus === "Resolved") {
       setCurrentReport(record);
       setCancellationModalVisible(true);
+      setPendingStatus(newStatus);
     } else {
       try {
-        // Step 1: Update the status in the admin_approval table
         await axios.put(`http://localhost:5000/external-report-update/${record.report_id}`, {
           report_status: newStatus,
         });
-        // Fetch the updated reports
         fetchReports();
-  
-        // Success message
         message.success(`Status updated to ${newStatus}.`);
       } catch (error) {
-        console.error("Error updating status :", error);
+        console.error("Error updating status:", error);
         message.error("Failed to update status. Please try again.");
       }
     }
   };
 
+  // Handle cancellation reason submission
   const handleCancellationSubmit = async () => {
     try {
       await axios.put(`http://localhost:5000/external-report-update/${currentReport.report_id}`, {
-        report_status: "Closed",
+        report_status: pendingStatus,
         admin_comments: cancellationReason,
       });
       setCancellationModalVisible(false);
       setCancellationReason("");
       fetchReports();
-      message.success("Status updated to Closed"); // Success message
+      message.success(`Status updated to ${pendingStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
       message.error("Failed to update status. Please try again.");
     }
   };
 
+  // Handle viewing proof
   const handleViewProof = async (reportId) => {
     try {
       const res = await axios.get(`http://localhost:5000/api/scam-reports/${reportId}/proof`);
@@ -124,13 +145,58 @@ const ScamReportsTable = () => {
     }
   };
 
+  // Filter data based on applied filters
+  const filteredData = useMemo(() => {
+    let data = [...reports];
 
-  const filteredData = reports.filter(
-    (report) =>
-      (!filters.scamType || report.scam_type.toLowerCase().includes(filters.scamType.toLowerCase())) &&
-      (!filters.reportStatus || report.report_status === filters.reportStatus)
-  );
+    // Filter by user_id
+    if (filters.user_id) {
+      data = data.filter((report) =>
+        String(report.user_id).includes(filters.user_id)
+      );
+    }
 
+    // Filter by scam_type
+    if (filters.scam_type) {
+      data = data.filter((report) => report.scam_type === filters.scam_type);
+    }
+
+    // Filter by report_status
+    if (filters.report_status) {
+      data = data.filter((report) => report.report_status === filters.report_status);
+    }
+
+    // Filter by scam_date_range
+    if (filters.scam_date_range) {
+      const [startDate, endDate] = filters.scam_date_range;
+      data = data.filter((report) => {
+        const scamDate = dayjs(report.scam_date);
+        return scamDate.isAfter(startDate) && scamDate.isBefore(endDate);
+      });
+    }
+
+    return data;
+  }, [reports, filters]);
+
+  // Determine the type of proof (image, PDF, video, audio)
+  const getProofType = (proofData) => {
+    if (typeof proofData === "string") {
+      if (proofData.startsWith("data:image")) {
+        return "image";
+      } else if (proofData.startsWith("data:application/pdf")) {
+        return "pdf";
+      } else if (proofData.startsWith("data:video")) {
+        return "video";
+      } else if (proofData.startsWith("data:audio")) {
+        return "audio";
+      }
+    }
+    return "unknown";
+  };
+
+  const proofType = getProofType(proofData);
+
+  // Table columns definition
   const columns = [
     {
       title: "Report ID",
@@ -151,7 +217,7 @@ const ScamReportsTable = () => {
       render: (text, record) => (
         <Select defaultValue={text} onChange={(value) => updateStatus(record, value)}>
           <Select.Option value="Waiting for Update">Waiting for Update</Select.Option>
-          <Select.Option value="Under Review">Under Review</Select.Option>        
+          <Select.Option value="Under Review">Under Review</Select.Option>
           <Select.Option value="Escalated">Escalated</Select.Option>
           <Select.Option value="Resolved">Resolved</Select.Option>
           <Select.Option value="Closed">Closed</Select.Option>
@@ -164,7 +230,7 @@ const ScamReportsTable = () => {
       dataIndex: "scam_date",
       key: "scam_date",
       sorter: (a, b) => new Date(a.scam_date) - new Date(b.scam_date),
-      render: (text) => dayjs(text).format("YYYY-MM-DD"), // Format to date only
+      render: (text) => dayjs(text).format("YYYY-MM-DD"),
     },
     {
       title: "User ID",
@@ -173,13 +239,13 @@ const ScamReportsTable = () => {
       responsive: ["md"],
     },
     {
-    title: "Submitted At",
-    dataIndex: "submitted_at",
-    key: "submitted_at",
-    sorter: (a, b) => new Date(a.submitted_at) - new Date(b.submitted_at),
-    render: (text) => dayjs(text).format("YYYY-MM-DD | HH:mm:ss"), // Format to date and time
-    responsive: ["md"],
-  },
+      title: "Submitted At",
+      dataIndex: "submitted_at",
+      key: "submitted_at",
+      sorter: (a, b) => new Date(a.submitted_at) - new Date(b.submitted_at),
+      render: (text) => dayjs(text).format("YYYY-MM-DD | HH:mm:ss"),
+      responsive: ["md"],
+    },
     {
       title: "Description",
       dataIndex: "description",
@@ -187,22 +253,21 @@ const ScamReportsTable = () => {
       responsive: ["lg"],
       render: (text) => (
         <div>
-          {text.length >10 ? (
+          {text.length > 10 ? (
             <>
-            {text.substring(0,10)}...
-            <Button type="link" icon={<FaEye/>} onClick={() => handleOpenModal(text)} />
+              {text.substring(0, 10)}...
+              <Button type="link" icon={<FaEye />} onClick={() => handleOpenModal(text)} />
             </>
           ) : (
             text
           )}
-          </div>
+        </div>
       ),
     },
-      
     {
       title: "Proof",
       key: "proof",
-      render: (_, record) => 
+      render: (_, record) =>
         record.proof ? (
           <Button
             type="link"
@@ -212,27 +277,10 @@ const ScamReportsTable = () => {
             View
           </Button>
         ) : (
-          "" // Returns blank if proof is null
+          ""
         ),
     },
   ];
-    
-  const getProofType = (proofData) => {
-    if (typeof proofData === "string") {
-      if (proofData.startsWith("data:image")) {
-        return "image";
-      } else if (proofData.startsWith("data:application/pdf")) {
-        return "pdf";
-      } else if (proofData.startsWith("data:video")) {
-        return "video";
-      } else if (proofData.startsWith("data:audio")) {
-        return "audio";
-      }
-    }
-    return "unknown";
-  };
-
-  const proofType = getProofType(proofData);
 
   return (
     <motion.div
@@ -240,7 +288,7 @@ const ScamReportsTable = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
       id="Analytics"
-      className="bg-white rounded-xl shadow-md overflow-x-auto p-5"
+      className="bg-white rounded-xl shadow-md overflow-x-auto p-5 mt-4"
     >
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center mb-4">
@@ -252,29 +300,78 @@ const ScamReportsTable = () => {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 md:gap-4 mb-4">
-        <motion.select
-          value={filters.scamType}
-          onChange={(e) => handleFilterChange("scamType", e.target.value)}
-          className="w-full md:w-auto p-2 border border-gray-300 rounded-lg bg-white shadow-md transition duration-200 hover:border-blue-500 focus:border-blue-500 focus:outline-none"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ scale: 1.05 }}
+        {/* User ID Filter */}
+        <Input
+          placeholder="Search User ID"
+          value={filters.user_id}
+          onChange={(e) => handleFilterChange("user_id", e.target.value)}
+          style={{ width: 150 }}
+        />
+
+        {/* Scam Type Filter */}
+        <Select
+          placeholder="Select Scam Type"
+          value={filters.scam_type || null}
+          onChange={(value) => handleFilterChange("scam_type", value)}
+          style={{ width: 200 }}
+          allowClear
         >
-          <option value="">Filter by scam type</option>
           {scamTypes.map((type) => (
-            <option key={type} value={type}>
+            <Select.Option key={type} value={type}>
               {type}
-            </option>
+            </Select.Option>
           ))}
-        </motion.select>
-        <motion.button
+        </Select>
+
+        {/* Report Status Filter */}
+        <Select
+          placeholder="Select Report Status"
+          value={filters.report_status || null}
+          onChange={(value) => handleFilterChange("report_status", value)}
+          style={{ width: 200 }}
+          allowClear
+        >
+          {[
+            "In Progress",
+            "Waiting for Update",
+            "Under Review",
+            "Escalated",
+            "Resolved",
+            "Closed",
+            "On Hold",
+          ].map((status) => (
+            <Select.Option key={status} value={status}>
+              {status}
+            </Select.Option>
+          ))}
+        </Select>
+
+        {/* Scam Date Range Filter */}
+        <RangePicker
+          value={filters.scam_date_range}
+          onChange={(dates) => handleFilterChange("scam_date_range", dates)}
+          style={{ width: 250 }}
+        />
+
+        {/* Reset Filters Button */}
+        <Button
+          type="primary"
           onClick={resetFilters}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md transition duration-200 hover:bg-red-600 focus:outline-none"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          style={{
+            backgroundColor: "#1890ff",
+            borderColor: "#1890ff",
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = "#ff4d4f";
+            e.target.style.borderColor = "#ff4d4f";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = "#1890ff";
+            e.target.style.borderColor = "#1890ff";
+          }}
         >
           Reset Filters
-        </motion.button>
+        </Button>
       </div>
 
       {/* Table */}
@@ -296,15 +393,17 @@ const ScamReportsTable = () => {
           />
         </div>
       )}
-      {/* {/* Description Modal} */}
+
+      {/* Description Modal */}
       <Modal
         title="Full Message"
         visible={modalVisible}
         onCancel={() => setModalVisible(false)}
         footer={null}
-        >
-          <p>{selectedMessage}</p>
-        </Modal>
+      >
+        <p>{selectedMessage}</p>
+      </Modal>
+
       {/* Proof Modal */}
       <Modal
         title="Proof"
@@ -341,7 +440,7 @@ const ScamReportsTable = () => {
 
       {/* Cancellation Reason Modal */}
       <Modal
-        title="Cancellation Reason"
+        title="Comments"
         visible={cancellationModalVisible}
         onCancel={() => setCancellationModalVisible(false)}
         footer={[
@@ -357,11 +456,11 @@ const ScamReportsTable = () => {
           rows={4}
           value={cancellationReason}
           onChange={(e) => setCancellationReason(e.target.value)}
-          placeholder="Enter the reason for cancellation"
+          placeholder="Enter the reason"
         />
       </Modal>
     </motion.div>
   );
 };
 
-export default ScamReportsTable;
+export default WithAuthEx(ScamReportsTable);

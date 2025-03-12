@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { HashLink } from "react-router-hash-link";
 import { useNavigate } from "react-router-dom";
+import WithAuthEx from "../hooks/WithAuthEx";
+
 import {
   FaChartBar,
   FaShieldAlt,
@@ -81,69 +83,72 @@ const ExternalNavbar = () => {
           </button>
           <HashLink
             smooth
-            to="#home"
+            to="/ExternalResources/ExternalResourcesHome#home"
             className="text-2xl font-bold mt-4 block"
             onClick={closeSidebar}
           >
-            Admin Panel
+            External Resource
           </HashLink>
         </div>
 
         {/* Navigation links */}
         <nav className="mt-10">
-          <HashLink
-            smooth
-            to="#User_Metrics"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaChartBar className="inline-block mr-2 text-blue-500" /> User
-            Metrics
-          </HashLink>
-          <HashLink
-            smooth
-            to="#Analytics"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaChartBar className="inline-block mr-2 text-blue-500" /> Analytics
-          </HashLink>
-          <HashLink
-            smooth
-            to="#Review"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaShieldAlt className="inline-block mr-2 text-red-500" /> Review
-          </HashLink>
-          <HashLink
-            smooth
-            to="#Contact_Us"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaClipboardList className="inline-block mr-2 text-yellow-500" />{" "}
-            Complaints
-          </HashLink>
-          <HashLink
-            smooth
-            to="#User_Management"
-            className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
-            onClick={closeSidebar}
-          >
-            <FaUsers className="inline-block mr-2 text-green-500" /> User
-            Management
-          </HashLink>
+      <HashLink
+        smooth
+        to="/ExternalResources/Externaltable#scam_reports"
+        className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        onClick={closeSidebar}
+        aria-label="Go to Scam Reports"
+      >
+        <FaClipboardList className="inline-block mr-2 text-blue-500" /> Scam Reports
+      </HashLink>
+      <HashLink
+        smooth
+        to="/ExternalResources/ExternalResourcesHome#resources"
+        className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        onClick={closeSidebar}
+        aria-label="Go to Resources"
+      >
+        <FaChartBar className="inline-block mr-2 text-blue-500" /> Resources
+      </HashLink>
+      <HashLink
+        smooth
+        to="/ExternalResources/ExternalResourcesHome#investigation_reports"
+        className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        onClick={closeSidebar}
+        aria-label="Go to Investigation Reports"
+      >
+        <FaShieldAlt className="inline-block mr-2 text-red-500" /> Investigation Reports
+      </HashLink>
+      <HashLink
+        smooth
+        to="/ExternalResources/ExternalResourcesHome#featured_resources"
+        className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        onClick={closeSidebar}
+        aria-label="Go to Featured Resources"
+      >
+        <FaClipboardList className="inline-block mr-2 text-yellow-500" /> Featured Resources
+      </HashLink>
+      <HashLink
+        smooth
+        to="/ExternalResources/ExternalResourcesHome#news"
+        className="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700"
+        onClick={closeSidebar}
+        aria-label="Go to News & Updates"
+      >
+        <FaUsers className="inline-block mr-2 text-green-500" /> News & Updates
+      </HashLink>
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center space-x-2 p-2 hover:bg-gray-700 w-full text-red-500"
-          >
-            <FaSignOutAlt />
-            <span>Logout</span>
-          </button>
-        </nav>
+      {/* Logout Button */}
+      <button
+        onClick={handleLogout}
+        className="flex items-center space-x-2 p-2 hover:bg-gray-700 w-full text-red-500"
+        aria-label="Logout"
+      >
+        <FaSignOutAlt />
+        <span>Logout</span>
+      </button>
+    </nav>
       </div>
 
       {/* Sidebar Toggle Button */}
@@ -194,4 +199,4 @@ const ExternalNavbar = () => {
   );
 };
 
-export default ExternalNavbar;
+export default WithAuthEx(ExternalNavbar);

@@ -47,7 +47,7 @@ const ScamReportsChart = () => {
 
   return (
   <div>
-    <div className="bg-white p-4 sm:p-6 shadow rounded-lg">
+    <div className="bg-white p-4 sm:p-6 shadow rounded-lg mt-8">
       <h2 className="text-lg sm:text-xl font-semibold mb-4 flex items-center gap-2">
         <FiBarChart2 className="text-blue-500" /> Scam Reports Overview
       </h2>
@@ -71,7 +71,7 @@ const ScamReportsChart = () => {
         </ResponsiveContainer>
       </motion.div>
     </div>
-    <div className="bg-white p-4 sm:p-6 shadow rounded-lg mt-6 mb-6">
+    <div className="bg-white p-4 sm:p-6 shadow rounded-lg mt-8 mb-6">
       {/* Scam Type Pie Chart */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 

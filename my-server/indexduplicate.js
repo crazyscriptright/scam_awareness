@@ -873,7 +873,7 @@ app.get("/api/all-scam-reports-modified", async (req, res) => {
           last_modified, 
           description 
       FROM scam_reports
-      WHERE report_status NOT IN ('Submitted', 'Pending')
+      WHERE report_status NOT IN ('Submitted', 'Pending', 'Cancelled')
       ORDER BY last_modified DESC;
     `);
     res.status(200).json(result.rows);

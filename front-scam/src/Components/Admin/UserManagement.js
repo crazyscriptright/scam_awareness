@@ -83,7 +83,7 @@ const UserManagement = () => {
       initial={{ opacity: 0, y: -20 }} // Initial animation state
       animate={{ opacity: 1, y: 0 }} // Animate to this state
       transition={{ duration: 0.5 }} // Animation duration
-      className="mt-5"
+      className="mt-8"
     >
       <Row gutter={[24, 24]} className="flex flex-wrap">
         {/* Create External User Column */}
@@ -180,7 +180,7 @@ const UserManagement = () => {
         {/* Block/Unblock User Column */}
         <Col xs={24} md={12} className="w-full md:w-1/2">
           <motion.div
-            className="p-4 rounded-lg shadow-md bg-white"
+            className="p-4 rounded-lg shadow-md bg-white mt-6 lg:mt-0"
           >
             <h2 className="text-center text-2xl font-bold mb-6">Block/Unblock User</h2>
             <Form form={blockUnblockForm} onFinish={handleBlockUnblockSubmit}>

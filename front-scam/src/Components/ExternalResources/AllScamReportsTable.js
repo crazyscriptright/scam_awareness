@@ -5,10 +5,7 @@ import { FaSyncAlt } from "react-icons/fa";
 import dayjs from "dayjs";
 import { motion } from "framer-motion";
 import { FaEye, } from "react-icons/fa";
-import WithAuth from "../hooks/WithAuth";
-
-
-
+import WithAuthEx from "../hooks/WithAuthEx";
 
 const { RangePicker } = DatePicker;
 
@@ -229,7 +226,6 @@ const AllScamReportsTable = () => {
                 "Resolved",
                 "Closed",
                 "On Hold",
-                "Cancelled",
               ].map((status) => (
                 <Select.Option key={status} value={status}>
                   {status}
@@ -312,4 +308,4 @@ const AllScamReportsTable = () => {
   );
 };
 
-export default AllScamReportsTable;
+export default WithAuthEx(AllScamReportsTable);

@@ -239,7 +239,7 @@ const ScamReportsTable = () => {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
       id="Analytics"
-      className="bg-white rounded-xl shadow-md overflow-x-auto p-5"
+      className="bg-white rounded-xl shadow-md overflow-x-auto p-5 mt-8"
     >
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center mb-4">

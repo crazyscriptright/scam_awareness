@@ -130,7 +130,7 @@ const ContactUsView = () => {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
-      className="bg-white rounded-xl shadow-md overflow-x-auto p-4 mt-4"
+      className="bg-white rounded-xl shadow-md overflow-x-auto p-4 mt-8"
     >
       {/* Header */}
       <div className="flex flex-wrap justify-between items-center mb-4">

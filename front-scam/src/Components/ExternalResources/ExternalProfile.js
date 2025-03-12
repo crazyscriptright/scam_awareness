@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FaUser, FaKey, FaSignOutAlt, FaCamera, FaUserCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import WithAuth from "../hooks/WithAuth";
+import WithAuthEx from "../hooks/WithAuthEx";
 
 
 const ExternalProfile = () => {
@@ -17,6 +17,7 @@ const ExternalProfile = () => {
   const [logoutMessage, setLogoutMessage] = useState(null);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
+  
 
   // Fetch Admin Profile and Picture
   useEffect(() => {
@@ -233,4 +234,4 @@ const ExternalProfile = () => {
   );
 };
 
-export default ExternalProfile;
+export default WithAuthEx(ExternalProfile);

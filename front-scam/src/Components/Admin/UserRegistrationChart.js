@@ -7,7 +7,6 @@ import { FaChartBar, FaChartLine, FaUsers } from "react-icons/fa";
 const UserRegistrationChart = ({ setTotalRegistrations }) => {
   const [data, setData] = useState([]);
   const [chartType, setChartType] = useState("bar"); // "bar" or "line"
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // Track mobile view
 
   useEffect(() => {
     axios.get("http://localhost:5000/api/users/registration-stats")
@@ -22,8 +21,8 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
           };
         });
 
-        // 🔹 Filter data based on screen size
-        const filteredData = isMobile ? formattedData.slice(-5) : formattedData.slice(-10);
+        // 🔹 Always show last 10 days of data
+        const filteredData = formattedData.slice(-10);
         setData(filteredData);
 
         // 🔹 Calculate total registrations and update parent state
@@ -31,17 +30,7 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
         setTotalRegistrations(total);
       })
       .catch((err) => console.error("Error fetching registration stats:", err));
-  }, [setTotalRegistrations, isMobile]); // Re-fetch and filter data when isMobile changes
-
-  // 🔹 Handle window resize to update isMobile state
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [setTotalRegistrations]); // No need to track screen size
 
   // 🔹 Calculate Average Growth Rate
   const avgGrowthRate = data.length > 1 
@@ -49,21 +38,18 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
     : 0;
 
   return (
-    <div className="overflow-hidden ">
+    <div className="overflow-hidden mt-6">
     <div 
-      className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-xl transition-all duration-300 mt-4"
-      style={{ 
-        marginLeft: isMobile ? "-30px" : "0" // Adjust margin for mobile view
-      }}
+      className="bg-white dark:bg-gray-800 shadow-lg rounded-xl transition-all duration-300 mt-4"
     >
+      
       {/* Header */}
       <div className="flex justify-between items-center mb-4 ">
         <h2 className="flex items-center ml-4 text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-
           <FaUsers className="mr-2 text-blue-500" />
           User Registrations
         </h2>
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 mt-4 mr-4">
           <button
             className={`p-2 rounded-md transition ${chartType === "bar" ? "bg-blue-500 text-white" : "bg-gray-200 dark:bg-gray-600"}`}
             onClick={() => setChartType("bar")}

@@ -82,9 +82,16 @@ const AdminHome = () => {
         </div>
       </header>
 
+
       {/* Dashboard Content */}
-      <main className=" flex-1 overflow-y-auto">
-        <div className="p-4 md:p-6">
+      <main className=" flex-1 overflow-y-auto ">
+        <div className="relative bg-cover bg-center h-80 flex items-center justify-center text-center text-white" style={{ backgroundImage: "url('https://source.unsplash.com/1600x900/?admin,technology')" }}>
+          <div className="bg-black bg-opacity-60 p-6 rounded-lg">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="mt-2 text-lg">Manage platform settings, users, and reports effectively.</p>
+          </div>
+        </div>
+        <div className=" p-4 md:p-12">
         <div id="User_Metrics"className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
           {/* Total Registrations */}
           <motion.div 
