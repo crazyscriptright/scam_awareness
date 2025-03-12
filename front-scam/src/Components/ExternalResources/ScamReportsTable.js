@@ -54,7 +54,7 @@ const ScamReportsTable = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/scam-reports");
+      const res = await axios.get("http://localhost:5000/api/scam-reports-modified");
       setReports(res.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -76,45 +76,37 @@ const ScamReportsTable = () => {
   };
 
   const updateStatus = async (record, newStatus) => {
-    if (newStatus === "Resolved" || newStatus==="Closed") {
+    if (newStatus === "Closed") {
       setCurrentReport(record);
       setCancellationModalVisible(true);
-      handleCancellationSubmit(newStatus);
     } else {
       try {
-        // Ensure external_resources_id is present in the record
-        if (!record.external_resources_id) {
-          throw new Error("external_resources_id is missing in the record");
-        }
-  
-        // Step 1: Update the status in the external_resources table
-        await axios.put(`http://localhost:5000/external-report-update/${record.external_resources_id}`, {
+        // Step 1: Update the status in the admin_approval table
+        await axios.put(`http://localhost:5000/external-report-update/${record.report_id}`, {
           report_status: newStatus,
-          external_notes: record.external_notes || null, // Use external_notes instead of admin_comments
         });
-  
         // Fetch the updated reports
         fetchReports();
   
         // Success message
         message.success(`Status updated to ${newStatus}.`);
       } catch (error) {
-        console.error("Error updating status:", error);
+        console.error("Error updating status :", error);
         message.error("Failed to update status. Please try again.");
       }
     }
   };
 
-  const handleCancellationSubmit = async (newStatus) => {
+  const handleCancellationSubmit = async () => {
     try {
       await axios.put(`http://localhost:5000/external-report-update/${currentReport.report_id}`, {
-        report_status: newStatus,
-        external_notes: cancellationReason,
+        report_status: "Closed",
+        admin_comments: cancellationReason,
       });
       setCancellationModalVisible(false);
       setCancellationReason("");
       fetchReports();
-      message.success("Status updated to Cancelled"); // Success message
+      message.success("Status updated to Closed"); // Success message
     } catch (error) {
       console.error("Error updating status:", error);
       message.error("Failed to update status. Please try again.");

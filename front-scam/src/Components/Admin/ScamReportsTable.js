@@ -85,21 +85,16 @@ const ScamReportsTable = () => {
         await axios.put(`http://localhost:5000/admin-approval/${record.report_id}`, {
           report_status: newStatus,
         });
-  
-        // Step 2: Create a new entry in the external_resources table
-        await axios.post(`http://localhost:5000/external-resources-status-update`, {
-          verification_id: record.report_id, // Assuming verification_id is part of the record
-          report_status: newStatus,
-        });
+
   
         // Fetch the updated reports
         fetchReports();
   
         // Success message
-        message.success(`Status updated to ${newStatus} and external resource created.`);
+        message.success(`Status updated to ${newStatus}.`);
       } catch (error) {
-        console.error("Error updating status or creating external resource:", error);
-        message.error("Failed to update status or create external resource. Please try again.");
+        console.error("Error updating status ", error);
+        message.error("Failed to update status. Please try again.");
       }
     }
   };

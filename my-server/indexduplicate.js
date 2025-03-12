@@ -860,33 +860,6 @@ app.post("/external-profile-picture", isAuthenticatedexternal, async (req, res) 
   }
 });
 
-// Get all scam reports from the "submitted_scam_reports" view
-app.get("/api/scam-reports", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT 
-        sr.report_id,
-        sr.user_id,
-        sr.scam_type,
-        sr.description,
-        sr.scam_date,
-        COALESCE(er.report_status, sr.report_status) AS report_status, 
-        sr.submitted_at,
-        sr.proof,
-        sr.last_modified,
-        sr.admin_comments
-      FROM scam_reports sr
-      LEFT JOIN external_resources er ON sr.report_id = er.verification_id
-      WHERE COALESCE(er.report_status, sr.report_status) NOT IN ('Submitted', 'Cancelled', 'Pending', 'Resolved')
-    `);
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching scam reports:", error);
-    res.status(500).json({ error: "Error fetching scam reports" });
-  }
-});
-
-
 //modifed all scam reports
 app.get("/api/all-scam-reports-modified", async (req, res) => {
   try {
@@ -900,12 +873,7 @@ app.get("/api/all-scam-reports-modified", async (req, res) => {
           last_modified, 
           description 
       FROM scam_reports
-      WHERE report_status IN ('In Progress',
-        'Waiting for Update',
-        'Under Review',
-        'Escalated',
-        'On Hold',
-        'Cancelled')
+      WHERE report_status NOT IN ('Submitted', 'Pending')
       ORDER BY last_modified DESC;
     `);
     res.status(200).json(result.rows);
@@ -915,39 +883,55 @@ app.get("/api/all-scam-reports-modified", async (req, res) => {
   }
 });
 
-app.put("/external-report-update/:external_resources_id", async (req, res) => {
-  const { external_resources_id } = req.params;
-  const { report_status, external_notes } = req.body;
+//external status update
+// Get all scam reports from the "submitted_scam_reports not cancelled or Resolved or " view
+app.get("/api/scam-reports-modified", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+          report_id, 
+          user_id, 
+          scam_type, 
+          scam_date, 
+          report_status, 
+          last_modified, 
+          description,
+          proof 
+      FROM scam_reports
+      WHERE report_status IN ('In Progress',
+        'Waiting for Update',
+        'Under Review',
+        'Escalated',
+        'On Hold')
+      ORDER BY last_modified DESC;
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching scam reports:", error);
+    res.status(500).json({ error: "Error fetching scam reports" });
+  }
+});
+
+// Update scam report status
+app.put("/external-report-update/:report_id", async (req, res) => {
+  const { report_id } = req.params;
+  const { report_status, admin_comments } = req.body;
 
   if (!report_status) {
     return res.status(400).json({ error: "report_status is required" });
   }
 
   try {
-    // Update external_resources table
     const result = await pool.query(
-      `UPDATE external_resources 
-       SET report_status = $1, external_notes = $2, completion_time = CURRENT_TIMESTAMP
-       WHERE external_resources_id = $3 
-       RETURNING verification_id`,
-      [report_status, external_notes || null, external_resources_id]
+      "UPDATE scam_reports SET report_status = $1, admin_comments = $2 WHERE report_id = $3 RETURNING *",
+      [report_status, admin_comments || null, report_id]
     );
 
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Report not found" });
     }
 
-    const { verification_id } = result.rows[0];
-
-    // Update last_modified timestamp in scam_reports table
-    await pool.query(
-      `UPDATE scam_reports 
-       SET last_modified = CURRENT_TIMESTAMP 
-       WHERE report_id = $1`,
-      [verification_id]
-    );
-
-    res.json({ message: "Report updated successfully", updated_report_id: verification_id });
+    res.json({ message: "Report updated successfully", report: result.rows[0] });
   } catch (error) {
     console.error("Error updating report:", error);
     res.status(500).json({ error: "Error updating report" });
