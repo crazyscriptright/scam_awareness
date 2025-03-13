@@ -15,16 +15,25 @@ export default function WhoWeAre() {
           transition={{ duration: 0.8 }}
           className="md:w-1/2 text-center md:text-left relative z-10"
         >
-          <h2 className="text-5xl font-extrabold text-gray-900 mb-6 leading-tight transition-all duration-300">
+          <motion.h2 
+            className="text-5xl font-extrabold text-gray-900 mb-6 leading-tight transition-all duration-300"
+            whileHover={{ scale: 1.05, x: -10, color: "#4f46e5" }}
+          >
             Who We Are
-          </h2>
-          <p className="max-w-lg text-lg text-gray-600 mb-8 transition-all duration-300">
+          </motion.h2>
+          <motion.p 
+            className="max-w-lg text-lg text-gray-600 mb-8 transition-all duration-300"
+            whileHover={{ scale: 1.02, x: -10, color: "#6b7280" }}
+          >
             We are dedicated to raising awareness about scams, educating the public, and
             providing a secure platform to report fraudulent activities.
-          </p>
-          <button className="bg-black text-white px-6 py-3 rounded-full font-semibold text-lg transition-all duration-300 hover:bg-gray-900">
+          </motion.p>
+          <motion.button 
+            className="bg-black text-white px-6 py-3 rounded-full font-semibold text-lg transition-all duration-300 hover:bg-gray-900"
+            whileHover={{ scale: 1.1 }}
+          >
             Learn More
-          </button>
+          </motion.button>
         </motion.div>
 
         {/* Image Section */}

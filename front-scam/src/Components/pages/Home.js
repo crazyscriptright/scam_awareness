@@ -8,6 +8,7 @@ import hackingThreatImg from "../../Img/hacking-threat.jpg";
 import passwordSecurityImg from "../../Img/password-security.jpg";
 import ReportScam from "../User/ReportScam";
 import WhoWeAre from "./component/WhoWeAre";
+import WhatWeDo from "./component/WhatWeDo";
 import {
   FaTrophy,
   FaUsers,
@@ -62,14 +63,7 @@ const Home = () => {
       <WhoWeAre/>
 
       {/* What We Do */}
-      <section className="py-12 px-6 bg-gray-100 text-center">
-        <h2 className="text-3xl font-bold mb-6">What We Do</h2>
-        <p className="max-w-3xl mx-auto text-lg mb-6">
-          Our platform provides resources to help users identify scams, stay protected, and
-          report fraud. We work with experts to ensure up-to-date information and secure
-          reporting mechanisms.
-        </p>
-      </section>
+      <WhatWeDo/>
 
       {/* Achievements */}
       <section className="py-12 px-6 bg-gray-200">
