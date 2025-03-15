@@ -9,7 +9,7 @@ import ExternalResourceHome from "./Components/ExternalResources/ExternalResourc
 import ReportScam from "./Components/User/ReportScam";
 import ContactUs from "./Components/User/ContactUs";
 import ExternalTable from "./Components/ExternalResources/ExternalTable"
-
+import ScamAwarenessPage from "./Components/pages/ScamAwarenessPage,js"
 
 const App = () => {
     return (
@@ -25,6 +25,7 @@ const App = () => {
                 <Route path="/User/ReportScam" element={<ReportScam />}/>
                 <Route path='/ContactUs' element={<ContactUs />}/>
                 <Route path='/ExternalResources/ExternalTable' element={<ExternalTable />}/>
+                {/* <Route path='/ScamAwarenessPage' element={<ScamAwarenessPage />}/> */}
             </Routes>
         </Router>
     </div>

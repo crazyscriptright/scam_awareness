@@ -9,6 +9,8 @@ import passwordSecurityImg from "../../Img/password-security.jpg";
 import ReportScam from "../User/ReportScam";
 import WhoWeAre from "./component/WhoWeAre";
 import WhatWeDo from "./component/WhatWeDo";
+import OurAchievements from "./component/OurAchievements";
+import Header from "./component/Header";
 import {
   FaTrophy,
   FaUsers,
@@ -46,18 +48,7 @@ const Home = () => {
       </div>
 
       {/* Hero Section */}
-      <header className="relative bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-center py-20 px-6">
-        <h1 className="text-4xl md:text-6xl font-bold">Scam Awareness Portal</h1>
-        <p className="mt-4 text-lg md:text-xl">
-          Identify, prevent, and report scams to protect yourself and others.
-        </p>
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          className="mt-6 inline-block bg-white text-blue-600 px-6 py-3 rounded-full font-semibold shadow-md hover:bg-gray-200 transition"
-        >
-          <Link to="/about">Learn More</Link>
-        </motion.div>
-      </header>
+      <Header/>
 
       {/* Who We Are */}
       <WhoWeAre/>
@@ -66,27 +57,7 @@ const Home = () => {
       <WhatWeDo/>
 
       {/* Achievements */}
-      <section className="py-12 px-6 bg-gray-200">
-        <h2 className="text-center text-3xl font-bold mb-6">Our Achievements</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-          <div className="p-6 bg-white shadow rounded-lg">
-            <FaUsers className="text-blue-500 text-4xl mx-auto mb-4" />
-            <h3 className="font-semibold">50,000+ Users</h3>
-            <p className="text-sm mt-2">People using our platform to stay safe.</p>
-          </div>
-          <div className="p-6 bg-white shadow rounded-lg">
-            <FaTrophy className="text-yellow-500 text-4xl mx-auto mb-4" />
-            <h3 className="font-semibold">10,000+ Scams Reported</h3>
-            <p className="text-sm mt-2">Fraudulent activities prevented.</p>
-          </div>
-          <div className="p-6 bg-white shadow rounded-lg">
-            <FaCheckCircle className="text-green-500 text-4xl mx-auto mb-4" />
-            <h3 className="font-semibold">Verified Reports</h3>
-            <p className="text-sm mt-2">Ensuring accuracy and credibility.</p>
-          </div>
-        </div>
-      </section>
-
+      <OurAchievements/>
       {/* Types of Scams */}
       <section className="py-12 px-6 bg-gray-200 text-center">
         <h2 className="text-3xl font-bold mb-6">Types of Scams</h2>

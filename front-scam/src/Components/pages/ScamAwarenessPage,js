@@ -1,0 +1,80 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+const services = [
+  { title: 'Search Engine Optimization', description: 'Boost your ranking with our advanced SEO strategies.', icon: '🔍' },
+  { title: 'Pay-per-click Advertising', description: 'Drive targeted traffic with optimized PPC campaigns.', icon: '💻' },
+  { title: 'Social Media Marketing', description: 'Engage your audience with creative social strategies.', icon: '📱' },
+  { title: 'Email Marketing', description: 'Reach your customers with effective email campaigns.', icon: '📧' },
+  { title: 'Content Creation', description: 'Create compelling content to attract and convert.', icon: '✍️' },
+  { title: 'Analytics and Tracking', description: 'Analyze data to optimize your marketing strategies.', icon: '📊' },
+];
+
+const ScamAwarenessPage = () => {
+  const [activeIndex, setActiveIndex] = useState(null);
+
+  const toggleAccordion = (index) => {
+    setActiveIndex(activeIndex === index ? null : index);
+  };
+
+  return (
+    <div className="bg-gradient-to-b from-gray-100 to-gray-300 min-h-screen p-8">
+      <section className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-8 text-black">Scam Awareness Platform</h1>
+
+        {/* Services Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.05 }}
+              className="p-6 rounded-2xl bg-white shadow-lg border border-gray-200 flex items-center gap-4"
+            >
+              <span className="text-4xl">{service.icon}</span>
+              <div>
+                <h3 className="text-xl font-semibold text-black">{service.title}</h3>
+                <p className="text-gray-600">{service.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* FAQ Section */}
+        <h2 className="text-3xl font-bold mt-16 mb-8 text-black">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {[...Array(5)].map((_, index) => (
+            <div key={index} className="bg-white rounded-2xl shadow-md p-4">
+              <button
+                onClick={() => toggleAccordion(index)}
+                className="flex justify-between w-full text-left text-black font-semibold text-lg"
+              >
+                Question {index + 1}
+                <span>{activeIndex === index ? '-' : '+'}</span>
+              </button>
+              {activeIndex === index && (
+                <p className="mt-4 text-gray-600">This is the answer to the question.</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Testimonials Section */}
+        <h2 className="text-3xl font-bold mt-16 mb-8 text-black">What Our Users Say</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          {[...Array(4)].map((_, index) => (
+            <motion.div
+              key={index}
+              whileHover={{ scale: 1.03 }}
+              className="p-6 rounded-2xl bg-black text-white shadow-md"
+            >
+              <p className="text-lg">"Amazing platform that helped me identify and report scams easily."</p>
+              <p className="mt-4 text-sm text-gray-400">- User {index + 1}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default ScamAwarenessPage;

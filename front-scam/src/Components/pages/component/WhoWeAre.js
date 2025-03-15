@@ -28,20 +28,26 @@ export default function WhoWeAre() {
             We are dedicated to raising awareness about scams, educating the public, and
             providing a secure platform to report fraudulent activities.
           </motion.p>
-          <motion.button 
-            className="bg-black text-white px-6 py-3 rounded-full font-semibold text-lg transition-all duration-300 hover:bg-gray-900"
-            whileHover={{ scale: 1.1 }}
-          >
-            Learn More
-          </motion.button>
-        </motion.div>
+          <motion.button
+            className="text-white px-6 py-3 rounded-full font-semibold text-lg transition-all duration-300"
+            style={{
+                background: "linear-gradient(to right, #4f46e5, #9333ea)",
+            }}
+            whileHover={{
+                scale: 1.1,
+                background: "linear-gradient(to right, #6366f1, #a855f7)",
+            }}
+>
+  Learn More
+</motion.button>
+    </motion.div>
 
         {/* Image Section */}
         <motion.div
           initial={{ opacity: 0, x: 100 }}
           animate={{ opacity: 1, x: hovered ? -50 : 0 }}
           transition={{ duration: 0.8 }}
-          className="md:w-1/2 relative cursor-pointer"
+          className="md:w-1/3 relative cursor-pointer"
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
         >
