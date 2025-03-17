@@ -42,3 +42,5 @@ push an existing repository from the command line
 git remote add origin https://github.com/crazyscriptright/Violence_detection_model.git
 git branch -M main
 git push -u origin main
+
+npx concurrently "node my-server/indexduplicate.js" "npm start --prefix front-scam"
