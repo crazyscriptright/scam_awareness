@@ -29,7 +29,7 @@ const pool = new Pool({
 });
 
 // Middleware
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: ["http://localhost:3000","https://a179-2409-4071-4e09-c817-d6a-c75d-2fd9-cbf4.ngrok-free.app"], credentials: true }));
 app.use(bodyParser.json({ limit: "15mb" })); // Adjust if needed
 app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
 app.use(helmet());
@@ -47,7 +47,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production"? true : false,
       httpOnly: true,
       maxAge: 30 * 60 * 1000, // 30 minutes
       sameSite: "strict",
