@@ -51,7 +51,7 @@ const Navbar = () => {
                 <button className="text-gray-900" onClick={toggleSidebar}>
                     <FaBars className="w-6 h-6" />
                 </button>
-                <h2 className="ml-4 text-xl font-bold">Scam Awareness Portal</h2>
+                <h2 className="ml-4 text-xl font-bold">Scam Shield</h2>
             </div>
         </div>
     );

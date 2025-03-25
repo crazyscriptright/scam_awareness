@@ -20,7 +20,7 @@ const Profile = () => {
   // Fetch Admin Profile
   useEffect(() => {
     axios
-      .get("/profile", { withCredentials: true })
+      .get("http://localhost:5000/profile", { withCredentials: true })
       .then((res) => {
         if (res.data) {
           setUser ({
@@ -35,7 +35,7 @@ const Profile = () => {
   // Handle Logout
   const handleLogout = () => {
     axios
-      .post("/logout", {}, { withCredentials: true })
+      .post("http://localhost:5000/logout", {}, { withCredentials: true })
       .then(() => {
         setUser(null); // Clear user state
         setLogoutMessage("You are being logged out...");
@@ -58,7 +58,7 @@ const Profile = () => {
 
     axios
       .post(
-        "/update-password",
+        "http://localhost:5000/update-password",
         { newPassword },
         { withCredentials: true }
       )
@@ -80,7 +80,7 @@ const Profile = () => {
     formData.append("profilePicture", file);
 
     axios
-      .post("/update-profile-picture", formData, {
+      .post("http://localhost:5000/update-profile-picture", formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       })
