@@ -12,6 +12,8 @@ import WhatWeDo from "./component/WhatWeDo";
 import OurAchievements from "./component/OurAchievements";
 import Header from "./component/Header";
 import ScamShield from "./component/ScamShield";
+import ScamTypesSection from "./component/ScamTypesSection";
+import PreventionTipsSection from "./component/PreventionTipsSection";
 import {
   FaTrophy,
   FaUsers,
@@ -78,145 +80,10 @@ const Home = () => {
       <OurAchievements colors={colors} />
 
       {/* Types of Scams - Enhanced with Lusion card styling */}
-      <section className="py-20 px-6 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-medium text-blue-500 tracking-widest mb-2">PROTECT YOURSELF</span>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Types of Digital Scams</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Understanding these common threats is your first line of defense against cyber criminals.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="p-8 bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
-            >
-              <div className="w-14 h-14 bg-blue-50 rounded-lg flex items-center justify-center mb-6">
-                <FaExclamationTriangle className="text-blue-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Phishing Scams</h3>
-              <p className="text-gray-600 mb-4">
-                Fraudulent emails, texts, or websites impersonating legitimate organizations to steal sensitive data.
-              </p>
-              <Link to="/phishing-info" className="flex items-center text-blue-500 font-medium">
-                Learn more <FaArrowRight className="ml-2" />
-              </Link>
-            </motion.div>
-            
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="p-8 bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
-            >
-              <div className="w-14 h-14 bg-amber-50 rounded-lg flex items-center justify-center mb-6">
-                <FaShieldAlt className="text-amber-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Investment Scams</h3>
-              <p className="text-gray-600 mb-4">
-                "Get rich quick" schemes promising unrealistic returns with no risk.
-              </p>
-              <Link to="/investment-scams" className="flex items-center text-blue-500 font-medium">
-                Learn more <FaArrowRight className="ml-2" />
-              </Link>
-            </motion.div>
-            
-            <motion.div 
-              whileHover={{ y: -10 }}
-              className="p-8 bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300"
-            >
-              <div className="w-14 h-14 bg-purple-50 rounded-lg flex items-center justify-center mb-6">
-                <FaNewspaper className="text-purple-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Social Media Scams</h3>
-              <p className="text-gray-600 mb-4">
-                Fake giveaways, romance scams, and impersonation on social platforms.
-              </p>
-              <Link to="/social-media-scams" className="flex items-center text-blue-500 font-medium">
-                Learn more <FaArrowRight className="ml-2" />
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <ScamTypesSection colors={colors} />
 
       {/* Prevention Tips - Enhanced with gradient backgrounds */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-sm font-medium text-blue-500 tracking-widest mb-2">STAY SAFE ONLINE</span>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Essential Prevention Tips</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Proactive measures to protect your digital identity and assets.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-100">
-              <div className="w-14 h-14 bg-green-50 rounded-lg flex items-center justify-center mb-6">
-                <FaLock className="text-green-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Password Security</h3>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Use unique, complex passwords for each account
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Enable two-factor authentication (2FA)
-                </li>
-                <li className="flex items-start">
-                  <span className="text-green-500 mr-2">✓</span>
-                  Consider using a password manager
-                </li>
-              </ul>
-            </div>
-            
-            <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-100">
-              <div className="w-14 h-14 bg-blue-50 rounded-lg flex items-center justify-center mb-6">
-                <FaUsers className="text-blue-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Verification</h3>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="text-blue-500 mr-2">✓</span>
-                  Verify unexpected requests via official channels
-                </li>
-                <li className="flex items-start">
-                  <span className="text-blue-500 mr-2">✓</span>
-                  Check for HTTPS and padlock icons on websites
-                </li>
-                <li className="flex items-start">
-                  <span className="text-blue-500 mr-2">✓</span>
-                  Be wary of unsolicited communications
-                </li>
-              </ul>
-            </div>
-            
-            <div className="p-8 bg-white rounded-xl shadow-lg border border-gray-100">
-              <div className="w-14 h-14 bg-red-50 rounded-lg flex items-center justify-center mb-6">
-                <FaCheckCircle className="text-red-500 text-2xl" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Reporting</h3>
-              <ul className="text-gray-600 space-y-2">
-                <li className="flex items-start">
-                  <span className="text-red-500 mr-2">✓</span>
-                  Report suspicious activity immediately
-                </li>
-                <li className="flex items-start">
-                  <span className="text-red-500 mr-2">✓</span>
-                  Warn friends/family about circulating scams
-                </li>
-                <li className="flex items-start">
-                  <span className="text-red-500 mr-2">✓</span>
-                  Monitor accounts for unauthorized activity
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+      <PreventionTipsSection colors={colors} />
 
       {/* News & Articles Section - Enhanced with Lusion styling */}
       <section className="py-20 bg-white">

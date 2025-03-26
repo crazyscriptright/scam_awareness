@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import WhatWeDoSvg from '../../../Img/what_we_do.svg';
 
 function WhatWeDo() {
   const ref = useRef(null);
@@ -8,17 +9,17 @@ function WhatWeDo() {
     offset: ["start end", "end start"]
   });
 
-  // Enhanced animation values
-  const yHeading = useTransform(scrollYProgress, [0, 1], [0, -50]);
-  const yContent = useTransform(scrollYProgress, [0, 1], [0, 30]);
-  const scaleProgress = useTransform(scrollYProgress, [0, 1], [1, 1.05]);
+  // Animation values
+  const yHeading = useTransform(scrollYProgress, [0, 1], [0, -30]);
+  const yContent = useTransform(scrollYProgress, [0, 1], [0, 20]);
+  const xSvg = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   return (
     <motion.section 
       ref={ref}
-      className="min-h-[120vh] py-20 px-6 bg-gradient-to-r from-blue-50 to-purple-50 flex items-center justify-center relative overflow-hidden"
+      className="min-h-[100vh] py-9 px-6 bg-gradient-to-r from-blue-50 to-purple-50 flex items-center relative overflow-hidden"
     >
-      {/* Lusion-style floating orb animations */}
+      {/* Floating background elements */}
       <motion.div 
         className="absolute top-1/4 left-1/4 w-40 h-40 rounded-full bg-blue-100 opacity-20 blur-3xl"
         animate={{
@@ -48,72 +49,19 @@ function WhatWeDo() {
         }}
       />
 
-      {/* Animated grid lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1440 800" fill="none">
-        {/* Moving horizontal lines */}
-        <motion.path
-          d="M0 200 L1440 200"
-          stroke="#E5E7EB"
-          strokeWidth="1"
-          initial={{ pathOffset: 0 }}
-          animate={{ pathOffset: 100 }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-        />
-        <motion.path
-          d="M0 400 L1440 400"
-          stroke="#E5E7EB"
-          strokeWidth="1"
-          initial={{ pathOffset: 0 }}
-          animate={{ pathOffset: 100 }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-            delay: 3
-          }}
-        />
-
-        {/* Animated connection dots */}
-        <motion.circle
-          cx="300" cy="300" r="2"
-          fill="#4F46E5"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            times: [0, 0.1, 1]
-          }}
-        />
-        <motion.circle
-          cx="800" cy="500" r="2"
-          fill="#9333EA"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 1, 0] }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            times: [0.3, 0.4, 1],
-            delay: 1
-          }}
-        />
-      </svg>
-
-      <motion.div 
-        className="max-w-4xl mx-auto relative z-10"
-        style={{ scale: scaleProgress }}
-      >
-        <motion.div style={{ y: yHeading }}>
+      {/* Main content container - Reversed order */}
+      <div className="max-w-7xl mx-auto w-full flex flex-col lg:flex-row-reverse items-center gap-8 relative z-10">
+        {/* Text content - now on right side */}
+        <motion.div 
+          className="lg:w-1/2"
+          style={{ y: yHeading }}
+        >
           <motion.h2 
-            className="text-5xl md:text-6xl font-light text-gray-900 mb-8 text-center"
-            initial={{ opacity: 0, y: 50 }}
+            className="text-5xl md:text-6xl font-light text-gray-900 mb-6"
+            initial={{ opacity: 0, x: 50 }} // Changed from -50 to 50 for right-side entrance
             whileInView={{ 
               opacity: 1, 
-              y: 0,
+              x: 0,
               transition: { 
                 type: "spring",
                 damping: 10,
@@ -127,80 +75,132 @@ function WhatWeDo() {
               What We Do
             </span>
           </motion.h2>
-        </motion.div>
 
-        <motion.div style={{ y: yContent }}>
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ 
-              opacity: 1,
-              transition: { 
-                staggerChildren: 0.1,
-                delayChildren: 0.3
-              }
-            }}
-            viewport={{ once: true, margin: "-100px" }}
-          >
+          <motion.div style={{ y: yContent }}>
             {[
-              "Our platform provides resources to help users identify scams, stay protected, and report fraud. We work with experts to ensure up-to-date information and secure reporting mechanisms. We also offer educational materials, interactive tools, and real-time alerts to keep our users informed and safe. Our dedicated support team is always available to assist you with any concerns related to online security."
+              "Our platform provides resources to help users identify scams, stay protected, and report fraud.",
+              "We work with experts to ensure up-to-date information and secure reporting mechanisms.",
+              "We also offer educational materials, interactive tools, and real-time alerts to keep our users informed and safe."
             ].map((text, i) => (
               <motion.p
                 key={i}
-                className="max-w-3xl mx-auto text-lg md:text-xl text-gray-600 mb-4 leading-relaxed text-center"
+                className="text-lg md:text-xl text-gray-600 mb-4 leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 * i }}
                 style={{ fontFamily: "'Inter', sans-serif" }}
               >
                 {text}
               </motion.p>
             ))}
           </motion.div>
-        </motion.div>
 
-        <motion.div
-          className="text-center mt-16"
-          initial={{ opacity: 0 }}
-          whileInView={{ 
-            opacity: 1,
-            transition: { delay: 0.8 }
-          }}
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <motion.a
-            href="#"
-            className="inline-flex items-center bg-transparent border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-full font-medium tracking-wider group"
-            whileHover={{ 
-              backgroundColor: "#4F46E5",
-              color: "#ffffff",
-              borderColor: "#4F46E5"
+          <motion.div
+            className="mt-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ 
+              opacity: 1,
+              transition: { delay: 0.8 }
             }}
-            whileTap={{ scale: 0.95 }}
-            style={{ fontFamily: "'Inter', sans-serif" }}
+            viewport={{ once: true, margin: "-100px" }}
           >
-            Learn More
-            <motion.span
-              className="ml-2 inline-block group-hover:translate-x-2 transition-transform"
+            <motion.a
+              href="#"
+              className="inline-flex items-center bg-transparent border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-medium tracking-wider group"
+              whileHover={{ 
+                backgroundColor: "#4F46E5",
+                color: "#ffffff",
+                borderColor: "#4F46E5"
+              }}
+              whileTap={{ scale: 0.95 }}
+              style={{ fontFamily: "'Inter', sans-serif" }}
             >
-              →
-            </motion.span>
-          </motion.a>
+              Learn More
+              <motion.span
+                className="ml-2 inline-block group-hover:translate-x-2 transition-transform"
+              >
+                →
+              </motion.span>
+            </motion.a>
+          </motion.div>
         </motion.div>
-      </motion.div>
 
-      {/* Floating connection lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none -z-10">
-        <motion.path
-          d="M200 100 Q500 300 800 100"
-          stroke="#4F46E5"
-          strokeWidth="1.5"
-          strokeDasharray="5 3"
-          fill="none"
-          initial={{ pathLength: 0, opacity: 0 }}
-          whileInView={{ pathLength: 1, opacity: 0.3 }}
-          viewport={{ once: true }}
-          transition={{ duration: 2, delay: 0.5 }}
-        />
-      </svg>
+        {/* SVG illustration - now on left side */}
+        <motion.div 
+          className="lg:w-1/2 flex justify-center"
+          style={{ x: xSvg }}
+        >
+          <div className="relative w-full max-w-md">
+            {/* Animated SVG container */}
+            <motion.div 
+              className="relative"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ 
+                opacity: 1, 
+                scale: 1,
+                transition: { 
+                  duration: 0.8,
+                  ease: "easeOut"
+                }
+              }}
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              {/* Main SVG from file with animations */}
+              <motion.div
+                className="relative"
+                animate={{
+                  y: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut"
+                }}
+              >
+                <img 
+                  src={WhatWeDoSvg} 
+                  alt="What we do illustration"
+                  className="w-full h-auto drop-shadow-lg"
+                />
+              </motion.div>
+              
+              {/* Additional animated elements */}
+              <motion.div
+                className="absolute top-0 left-0 w-full h-full pointer-events-none"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, delay: 0.5 }}
+              >
+                {/* Floating dots animation */}
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute bg-blue-500 rounded-full"
+                    style={{
+                      width: `${Math.random() * 8 + 4}px`,
+                      height: `${Math.random() * 8 + 4}px`,
+                      left: `${Math.random() * 80 + 10}%`,
+                      top: `${Math.random() * 80 + 10}%`,
+                      opacity: 0.4
+                    }}
+                    animate={{
+                      y: [0, (Math.random() - 0.5) * 30],
+                      x: [0, (Math.random() - 0.5) * 30],
+                    }}
+                    transition={{
+                      duration: Math.random() * 8 + 4,
+                      repeat: Infinity,
+                      repeatType: "reverse",
+                      ease: "easeInOut"
+                    }}
+                  />
+                ))}
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
     </motion.section>
   );
 }
