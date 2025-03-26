@@ -201,7 +201,7 @@ const ScamTypesSection = () => {
   ];
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-r from-blue-50 to-purple-50 relative overflow-hidden">
       {/* Lusion-style floating elements */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-20 left-10 w-40 h-40 rounded-full bg-blue-100 opacity-20 blur-3xl"></div>

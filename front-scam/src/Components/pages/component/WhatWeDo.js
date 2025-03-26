@@ -17,7 +17,7 @@ function WhatWeDo() {
   return (
     <motion.section 
       ref={ref}
-      className="min-h-[100vh] py-9 px-6 bg-gradient-to-r from-blue-50 to-purple-50 flex items-center relative overflow-hidden"
+      className="min-h-[100vh] py-9 px-6     flex items-center relative overflow-hidden"
     >
       {/* Floating background elements */}
       <motion.div 

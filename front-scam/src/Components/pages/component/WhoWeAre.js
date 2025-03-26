@@ -17,7 +17,7 @@ export default function WhoWeAre() {
   return (
     <motion.section 
       ref={ref}
-      className="min-h-[120vh] py-20 px-8 bg-white relative flex items-center overflow-hidden"
+      className="min-h-[120vh] py-20 px-8 relative flex items-center overflow-hidden"
       style={{ opacity }}
     >
       {/* Background SVG Lines */}

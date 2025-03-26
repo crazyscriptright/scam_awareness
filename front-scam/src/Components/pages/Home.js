@@ -30,6 +30,127 @@ import { motion } from "framer-motion";
 // Import Lusion-inspired fonts
 import "./font.css";
 
+// Enhanced SVG Background Component
+const AnimatedBackground = () => (
+  <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <svg 
+      className="w-full h-full" 
+      viewBox="0 0 1000 1000" 
+      preserveAspectRatio="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        {/* Gradient background */}
+        <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#f8fafc" />
+          <stop offset="100%" stopColor="#f1f5f9" />
+        </linearGradient>
+        
+        {/* Dot pattern */}
+        <pattern 
+          id="dot-pattern" 
+          x="0" 
+          y="0" 
+          width="40" 
+          height="40" 
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="20" cy="20" r="1" fill="#cbd5e1" opacity="0.2" />
+        </pattern>
+        
+        {/* Radial gradients for blobs */}
+        <radialGradient id="blob-gradient-1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+          <stop offset="0%" stopColor="#2563eb" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
+        </radialGradient>
+        
+        <radialGradient id="blob-gradient-2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+          <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      
+      {/* Background */}
+      <rect width="100%" height="100%" fill="url(#bg-gradient)" />
+      <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+      
+      {/* Animated blobs */}
+      <motion.circle 
+        cx="20%" 
+        cy="30%" 
+        r="15%" 
+        fill="url(#blob-gradient-1)"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0, 0.1, 0],
+          cx: ["20%", "22%", "20%"],
+          cy: ["30%", "32%", "30%"]
+        }}
+        transition={{
+          duration: 25,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut"
+        }}
+      />
+      
+      <motion.circle 
+        cx="80%" 
+        cy="70%" 
+        r="18%" 
+        fill="url(#blob-gradient-2)"
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: [0, 0.1, 0],
+          cx: ["80%", "78%", "80%"],
+          cy: ["70%", "68%", "70%"]
+        }}
+        transition={{
+          duration: 30,
+          repeat: Infinity,
+          repeatType: "reverse",
+          ease: "easeInOut",
+          delay: 10
+        }}
+      />
+    </svg>
+    
+    {/* Floating gradient blobs (HTML elements for better performance) */}
+    <motion.div 
+      className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-blue-500 opacity-10 blur-[100px]"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: [0, 0.1, 0],
+        x: ["-50%", "-45%", "-50%"],
+        y: ["-50%", "-55%", "-50%"]
+      }}
+      transition={{
+        duration: 25,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }}
+    />
+    
+    <motion.div 
+      className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full bg-purple-500 opacity-10 blur-[100px]"
+      initial={{ opacity: 0 }}
+      animate={{
+        opacity: [0, 0.1, 0],
+        x: ["50%", "55%", "50%"],
+        y: ["50%", "45%", "50%"]
+      }}
+      transition={{
+        duration: 30,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut",
+        delay: 15
+      }}
+    />
+  </div>
+);
+
 const Home = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -58,7 +179,10 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gray-50 text-gray-900 font-sans antialiased">
+    <div className="bg-gray-50 text-gray-900 font-sans antialiased relative overflow-hidden">
+      {/* Animated Background */}
+      <AnimatedBackground />
+      
       {/* Modern Navbar with Lusion-inspired styling */}
       <Navbar colors={colors} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
       
@@ -68,8 +192,8 @@ const Home = () => {
       </div>
 
       {/* Hero Section */}
-      {/* <Header colors={colors} /> */}
       <ScamShield colors={colors} />
+      
       {/* Who We Are */}
       <WhoWeAre colors={colors} />
 
@@ -86,7 +210,7 @@ const Home = () => {
       <PreventionTipsSection colors={colors} />
 
       {/* News & Articles Section - Enhanced with Lusion styling */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white relative z-10">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <span className="text-sm font-medium text-blue-500 tracking-widest mb-2">LATEST UPDATES</span>
