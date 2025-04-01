@@ -1,14 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { FaUser, FaSignInAlt, FaKey, FaSignOutAlt, FaCamera, FaUserCircle, FaEye, FaEyeSlash, FaClipboardList } from "react-icons/fa";
+import {
+  FaUser,
+  FaSignInAlt,
+  FaKey,
+  FaSignOutAlt,
+  FaCamera,
+  FaUserCircle,
+  FaEye,
+  FaEyeSlash,
+  FaClipboardList,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import ReportHistory from "../User/reporthistory";
 
 const Profile = () => {
-  const [user, setUser ] = useState(null); // Initialize user as null
+  const [user, setUser] = useState(null); // Initialize user as null
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isReportStatusModalOpen, setIsReportStatusModalOpen] = useState(false);
+  const [isReportHistoryModalOpen, setIsReportHistoryModalOpen] = useState(false); // State for Report History Modal
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -17,14 +28,14 @@ const Profile = () => {
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
-  // Fetch Admin Profile
+  // Fetch User Profile
   useEffect(() => {
     axios
-      .get("http://localhost:5000/profile", { withCredentials: true })
+      .get("/profile", { withCredentials: true })
       .then((res) => {
         if (res.data) {
-          setUser ({
-            name: res.data.name || "User ",
+          setUser({
+            name: res.data.name || "User",
             profilePic: res.data.profilePic || "",
           });
         }
@@ -35,19 +46,18 @@ const Profile = () => {
   // Handle Logout
   const handleLogout = () => {
     axios
-      .post("http://localhost:5000/logout", {}, { withCredentials: true })
+      .post("/logout", {}, { withCredentials: true })
       .then(() => {
         setUser(null); // Clear user state
         setLogoutMessage("You are being logged out...");
-  
+
         setTimeout(() => {
           setLogoutMessage(null);
-          navigate("/"); // Ensure immediate redirection to home page
+          navigate("/"); // Redirect to home page
         }, 2000); // Reduced to 2 seconds for a smoother experience
       })
       .catch((err) => console.error("Logout error", err));
   };
-  
 
   // Handle Password Update
   const handlePasswordChange = () => {
@@ -58,7 +68,7 @@ const Profile = () => {
 
     axios
       .post(
-        "http://localhost:5000/update-password",
+        "/update-password",
         { newPassword },
         { withCredentials: true }
       )
@@ -80,12 +90,12 @@ const Profile = () => {
     formData.append("profilePicture", file);
 
     axios
-      .post("http://localhost:5000/update-profile-picture", formData, {
+      .post("/update-profile-picture", formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then((res) => {
-        setUser ((prev) => ({ ...prev, profilePic: res.data.profilePic }));
+        setUser((prev) => ({ ...prev, profilePic: res.data.profilePic }));
         alert("Profile picture updated successfully!");
         setIsProfileModalOpen(false);
       })
@@ -103,19 +113,27 @@ const Profile = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isReportHistoryModalOpen || isPasswordModalOpen || isProfileModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+  }, [isReportHistoryModalOpen, isPasswordModalOpen, isProfileModalOpen]);
+
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="fixed top-3 right-4 z-50" ref={dropdownRef}>
       {user ? (
-        // Show user profile when logged in
         <>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center space-x-2 bg-gray-800 text-white p-2 rounded-full"
+            className="flex items-center space-x-2 bg-gray-800 text-white p-1 rounded-full"
           >
             {user.profilePic ? (
               <img
                 src={user.profilePic}
-                alt=" Profile"
+                alt="Profile"
                 className="w-8 h-8 rounded-full"
               />
             ) : (
@@ -146,11 +164,11 @@ const Profile = () => {
               </button>
 
               <button
-                onClick={() => setIsReportStatusModalOpen(true)} 
+                onClick={() => setIsReportHistoryModalOpen(true)} // Open Report History Modal
                 className="flex items-center space-x-2 p-2 hover:bg-gray-100 w-full"
               >
                 <FaClipboardList className="text-blue-500" />
-                <span>Report Status</span>
+                <span>Report History</span>
               </button>
 
               <button
@@ -164,7 +182,6 @@ const Profile = () => {
           )}
         </>
       ) : (
-        // Show sign-in button when logged out
         <button
           onClick={() => navigate("/login")}
           className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded"
@@ -174,20 +191,18 @@ const Profile = () => {
         </button>
       )}
 
-      {/* Report Status Modal */}
-      {isReportStatusModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h2 className="text-xl font-semibold mb-4">Report Status</h2>
-            <p className="text-sm">Here you can check the status of your reports.</p>
-            {/* Add logic to display report status here */}
-            <div className="flex justify-end mt-4">
-              <button
-                className="bg-gray-300 px-3 py-1 rounded mr-2"
-                onClick={() => setIsReportStatusModalOpen(false)}
-              >
-                Close
-              </button>
+      {/* Report History Modal */}
+      {isReportHistoryModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+            <button
+              onClick={() => setIsReportHistoryModalOpen(false)} // Close Modal
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            >
+              &times;
+            </button>
+            <div className="max-h-96 overflow-y-auto">
+              <ReportHistory /> {/* Render ReportHistory Component */}
             </div>
           </div>
         </div>
@@ -232,7 +247,7 @@ const Profile = () => {
                 onClick={() => setIsPasswordModalOpen(false)}
               >
                 Cancel
-              </ button>
+              </button>
               <button
                 onClick={handlePasswordChange}
                 className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"

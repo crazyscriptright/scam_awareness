@@ -20,7 +20,7 @@ const Login = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/session", { withCredentials: true })
+      .get("/session", { withCredentials: true })
       .then((res) => {
         if (res.data.loggedIn) {
           navigate(res.data.redirectUrl);
@@ -36,7 +36,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/signin", formData, {
+      const res = await axios.post("/signin", formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

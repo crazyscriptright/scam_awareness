@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/forgot-password", formData, {
+      const res = await axios.post("/forgot-password", formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });

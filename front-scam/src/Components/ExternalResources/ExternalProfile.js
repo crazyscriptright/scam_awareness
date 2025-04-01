@@ -21,7 +21,7 @@ const ExternalProfile = () => {
 
   // Fetch Admin Profile and Picture
   useEffect(() => {
-    axios.get("http://localhost:5000/external-profile-picture", {withCredentials:true})
+    axios.get("/external-profile-picture", {withCredentials:true})
     .then((res) => {
         if (res.data) {
           setUser({
@@ -37,7 +37,7 @@ const ExternalProfile = () => {
 
   // Handle Logout
   const handleLogout = () => {
-    axios.post("http://localhost:5000/logout", {}, { withCredentials: true })
+    axios.post("/logout", {}, { withCredentials: true })
     .then(() => {
         setUser({ name: "User", profilePic: "" });
         setLogoutMessage("You are being logged out...");
@@ -53,7 +53,7 @@ const ExternalProfile = () => {
       return;
     }
 
-    axios.post("http://localhost:5000/update-password", { newPassword }, { withCredentials: true })
+    axios.post("/update-password", { newPassword }, { withCredentials: true })
     .then(() => {
         alert("Password updated successfully!");
         setNewPassword("");
@@ -73,7 +73,7 @@ const ExternalProfile = () => {
     reader.onloadend = () => {
       const base64Data = reader.result.split(",")[1]; // Get only the Base64 part
 
-      axios.post("http://localhost:5000/external-profile-picture", { profile_picture: base64Data }, { withCredentials: true })
+      axios.post("/external-profile-picture", { profile_picture: base64Data }, { withCredentials: true })
       .then(() => {
           setUser(prev => ({
             ...prev,

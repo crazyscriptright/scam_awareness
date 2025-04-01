@@ -375,7 +375,29 @@ app.get(
   })
 );
 
+app.get("/api/reports", isAuthenticated, async (req, res) => {
+  try {
+    const user_id = req.session.user.id; // Fetch user_id from session
 
+    const query = `
+      SELECT 
+        sr.report_id,
+        sr.scam_type,
+        sr.description,
+        sr.report_status,
+        sr.submitted_at,
+        sr.admin_comments
+      FROM scam_reports sr
+      WHERE sr.user_id = $1
+      ORDER BY sr.submitted_at DESC
+    `;
+    const { rows } = await pool.query(query, [user_id]);
+    res.json(rows);
+  } catch (err) {
+    console.error("Error fetching reports:", err);
+    res.status(500).json({ error: "Failed to fetch reports" });
+  }
+});
 //#########Admin############
 // GET Profile Picture with Authentication
 app.get("/profile-picture", isAuthenticatedAdmin, async (req, res) => {

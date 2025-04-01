@@ -33,7 +33,7 @@ const ExternalNavbar = () => {
 
   const confirmLogout = () => {
     axios
-      .post("http://localhost:5000/logout", {}, { withCredentials: true })
+      .post("/logout", {}, { withCredentials: true })
       .then(() => {
         setUser({ name: "User", profilePic: "" });
         setShowLogoutModal(false);

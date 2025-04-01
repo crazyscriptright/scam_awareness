@@ -28,7 +28,7 @@ const AllScamReportsTable = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/all-scam-reports");
+      const res = await axios.get("/api/all-scam-reports");
       if (res.data) {
         setReports(res.data);
       } else {

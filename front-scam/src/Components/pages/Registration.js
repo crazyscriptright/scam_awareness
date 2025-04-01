@@ -23,7 +23,7 @@ const Registration = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:5000/register", formData, {
+      const res = await axios.post("/register", formData, {
         headers: {
           "Content-Type": "application/json",
         },

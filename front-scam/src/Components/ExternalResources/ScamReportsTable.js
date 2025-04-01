@@ -66,7 +66,7 @@ const ScamReportsTable = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/scam-reports-modified");
+      const res = await axios.get("/api/scam-reports-modified");
       setReports(res.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -104,7 +104,7 @@ const ScamReportsTable = () => {
       setPendingStatus(newStatus);
     } else {
       try {
-        await axios.put(`http://localhost:5000/external-report-update/${record.report_id}`, {
+        await axios.put(`/external-report-update/${record.report_id}`, {
           report_status: newStatus,
         });
         fetchReports();
@@ -119,7 +119,7 @@ const ScamReportsTable = () => {
   // Handle cancellation reason submission
   const handleCancellationSubmit = async () => {
     try {
-      await axios.put(`http://localhost:5000/external-report-update/${currentReport.report_id}`, {
+      await axios.put(`/external-report-update/${currentReport.report_id}`, {
         report_status: pendingStatus,
         admin_comments: cancellationReason,
       });
@@ -136,7 +136,7 @@ const ScamReportsTable = () => {
   // Handle viewing proof
   const handleViewProof = async (reportId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scam-reports/${reportId}/proof`);
+      const res = await axios.get(`/api/scam-reports/${reportId}/proof`);
       setProofData(res.data);
       setProofModalVisible(true);
     } catch (error) {

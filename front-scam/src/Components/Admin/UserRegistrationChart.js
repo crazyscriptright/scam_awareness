@@ -9,7 +9,7 @@ const UserRegistrationChart = ({ setTotalRegistrations }) => {
   const [chartType, setChartType] = useState("bar"); // "bar" or "line"
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users/registration-stats")
+    axios.get("/api/users/registration-stats")
       .then((res) => {
         const formattedData = res.data.map(entry => {
           const date = new Date(entry.date); // Parse the date string into a Date object

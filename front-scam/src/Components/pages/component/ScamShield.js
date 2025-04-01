@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { HashLink } from 'react-router-hash-link';
+
 
 const ScamShield = () => {
   const canvasRef = useRef(null);
@@ -146,18 +148,20 @@ const ScamShield = () => {
             delay: 0.6
           }}
         >
-          <motion.button
-            whileHover={{ 
-              scale: 1.05,
-              backgroundColor: "rgba(59, 130, 246, 1)",
-              color: "#ffffff"
-            }}
-            whileTap={{ scale: 0.98 }}
-            className="px-10 py-4 bg-transparent border-2 border-blue-400 text-blue-400 font-medium tracking-wide rounded-full transition-all"
-          >
-            Get Protected Now
-            <span className="ml-2 inline-block">→</span>
-          </motion.button>
+          <HashLink to="/#scam-types">
+            <motion.button
+              whileHover={{ 
+                scale: 1.05,
+                backgroundColor: "rgba(59, 130, 246, 1)",
+                color: "#ffffff"
+              }}
+              whileTap={{ scale: 0.98 }}
+              className="px-10 py-4 bg-transparent border-2 border-blue-400 text-blue-400 font-medium tracking-wide rounded-full transition-all"
+            >
+              Get Protected Now
+              <span className="ml-2 inline-block">→</span>
+            </motion.button>
+          </HashLink>
         </motion.div>
       </motion.div>
     </section>

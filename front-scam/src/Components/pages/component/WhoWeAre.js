@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import whoweare from "../img/whoweare.jpg";
+import { HashLink } from "react-router-hash-link";
 
 export default function WhoWeAre() {
   const ref = useRef(null);
@@ -128,6 +129,8 @@ export default function WhoWeAre() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
+            <HashLink to="/aboutus">
+            
             <motion.button
               className="px-8 py-3 border-2 border-indigo-600 text-indigo-600 font-medium tracking-wider rounded-full hover:bg-indigo-600 hover:text-white transition-colors duration-500"
               whileHover={{ scale: 1.05 }}
@@ -135,6 +138,7 @@ export default function WhoWeAre() {
             >
               Learn More
             </motion.button>
+            </HashLink>
           </motion.div>
         </motion.div>
 

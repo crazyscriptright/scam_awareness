@@ -6,7 +6,7 @@ const AdminProfileget = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/profile-picture")
+      .get("/profile-picture")
       .then((res) => {
         if (res.data.profile_picture) {
           setImage(`data:image/png;base64,${res.data.profile_picture}`);
