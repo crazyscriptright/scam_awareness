@@ -54,7 +54,7 @@ const ScamReportsTable = () => {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/scam-reports");
+      const res = await axios.get("/api/scam-reports");
       setReports(res.data);
     } catch (error) {
       console.error("Error fetching reports:", error);
@@ -82,7 +82,7 @@ const ScamReportsTable = () => {
     } else {
       try {
         // Step 1: Update the status in the admin_approval table
-        await axios.put(`http://localhost:5000/admin-approval/${record.report_id}`, {
+        await axios.put(`/admin-approval/${record.report_id}`, {
           report_status: newStatus,
         });
 
@@ -101,7 +101,7 @@ const ScamReportsTable = () => {
 
   const handleCancellationSubmit = async () => {
     try {
-      await axios.put(`http://localhost:5000/admin-approval/${currentReport.report_id}`, {
+      await axios.put(`/admin-approval/${currentReport.report_id}`, {
         report_status: "Cancelled",
         admin_comments: cancellationReason,
       });
@@ -117,7 +117,7 @@ const ScamReportsTable = () => {
 
   const handleViewProof = async (reportId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/scam-reports/${reportId}/proof`);
+      const res = await axios.get(`/api/scam-reports/${reportId}/proof`);
       setProofData(res.data);
       setProofModalVisible(true);
     } catch (error) {

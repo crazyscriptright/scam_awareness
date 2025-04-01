@@ -28,7 +28,7 @@ const ReportScam = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/profile", { withCredentials: true })
+      .get("/profile", { withCredentials: true })
       .then((res) => setUser(res.data))
       .catch(() => {
         setUser(null);
@@ -104,7 +104,7 @@ const ReportScam = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/scam-reports",
+        "/scam-reports",
         reportData,
         { withCredentials: true }
       );

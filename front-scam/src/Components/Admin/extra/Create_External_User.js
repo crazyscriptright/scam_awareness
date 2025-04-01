@@ -18,7 +18,7 @@ const Create_External_User = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "http://localhost:5000/api/create_external_user",
+        "/api/create_external_user",
         {
           name: values.name,
           dob: values.dob.format("YYYY-MM-DD"),

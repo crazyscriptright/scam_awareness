@@ -8,7 +8,7 @@ const WithAuthEx = (WrappedComponent) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-      axios.get("http://localhost:5000/session", { withCredentials: true })
+      axios.get("/session", { withCredentials: true })
         .then((res) => {
           // Check for both login status and admin privileges
           if (res.data.loggedIn && res.data.user?.userType === 2) {

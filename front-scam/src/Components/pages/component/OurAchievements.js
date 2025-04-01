@@ -144,7 +144,7 @@ function OurAchievements() {
       className="relative py-20 px-4 overflow-hidden "
     >
       {/* Improved Background */}
-      <BackgroundPattern className="absolute top-0 left-0 w-full h-full pointer-events-none " />
+      {/* <BackgroundPattern className="absolute top-0 left-0 w-full h-full pointer-events-none " /> */}
       
       {/* Floating gradient blobs */}
       <motion.div 
@@ -210,7 +210,7 @@ function OurAchievements() {
             style={{ fontFamily: "'Clash Display', sans-serif" }}
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-              Our Impact in Numbers
+              Our Impact
             </span>
           </motion.h2>
           <motion.p 

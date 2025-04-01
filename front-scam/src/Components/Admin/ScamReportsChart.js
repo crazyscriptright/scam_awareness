@@ -12,7 +12,7 @@ const ScamReportsChart = () => {
   const [scamTypeData, setScamTypeData] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users/scam-reports")
+    axios.get("/api/users/scam-reports")
       .then((res) => {
         processChartData(res.data);
       })

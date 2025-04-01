@@ -26,7 +26,7 @@ const ContactUsView = () => {
   const fetchContacts = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/contacts");
+      const res = await axios.get("/api/contacts");
       setContacts(res.data);
     } catch (error) {
       console.error("Error fetching contacts:", error);
@@ -48,7 +48,7 @@ const ContactUsView = () => {
 
   const fetchattachments = async (contactId) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/contacts/${contactId}/attachment`);
+      const res = await axios.get(`/api/contacts/${contactId}/attachment`);
       setAttachment(res.data);
       setProofModalVisible(true);
     } catch (error) {

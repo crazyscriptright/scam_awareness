@@ -22,7 +22,7 @@ const AdminProfileup = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/profile-picture", { profile_picture: file });
+      await axios.post("/profile-picture", { profile_picture: file });
 
       alert("Profile picture uploaded successfully!");
     } catch (error) {

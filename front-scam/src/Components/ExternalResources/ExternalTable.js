@@ -4,6 +4,7 @@ import React from "react";
 import AllScamReportsTable from "./AllScamReportsTable";
 import ScamReportsTable from "./ScamReportsTable";
 import WithAuthEx from "../hooks/WithAuthEx";
+import DynamicBackground from "../pages/component/DynamicBackground";
 
 
 const ExternalTable = () => {
@@ -20,6 +21,7 @@ const ExternalTable = () => {
       {/* Body */}
       <main className="flex-grow pt-16"> {/* Add padding-top to avoid overlap with fixed header */}
         <div className="p-4">
+          <DynamicBackground colors={["#f0f4ff", "#e0e7ff"]} />
           <ScamReportsTable />
           <AllScamReportsTable />
         </div>

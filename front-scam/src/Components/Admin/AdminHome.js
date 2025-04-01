@@ -12,6 +12,7 @@ import AllScamReportsTable from "./AllScamReportsTable";
 import UserManagement from "./UserManagement";
 import ContactUsView from "./ContactUsView";
 import Footer from "../User/Footer";
+import DynamicBackground from "../pages/component/DynamicBackground";
 
 
 const AdminHome = () => {
@@ -23,7 +24,7 @@ const AdminHome = () => {
 
   // Fetch total registrations directly
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users/total-registrations-count")
+    axios.get("/api/users/total-registrations-count")
       .then((res) => {
         setTotalRegistrations(res.data.totalRegistrations);
       })
@@ -32,7 +33,7 @@ const AdminHome = () => {
 
   // Fetch active sessions
   useEffect(() => {
-    axios.get("http://localhost:5000/api/users/active-sessions")
+    axios.get("/api/users/active-sessions")
       .then((res) => {
         setActiveSessions(res.data.activeSessions);
       })
@@ -41,7 +42,7 @@ const AdminHome = () => {
 
   // Fetch security alerts
   useEffect(() => {
-    axios.get("http://localhost:5000/api/User/security-alerts")
+    axios.get("/api/User/security-alerts")
       .then((res) => {
         if (res.data.length === 1 && res.data[0].message === "No active security alerts") {
           setSecurityAlerts([]);
@@ -85,12 +86,7 @@ const AdminHome = () => {
 
       {/* Dashboard Content */}
       <main className=" flex-1 overflow-y-auto ">
-        <div className="relative bg-cover bg-center h-80 flex items-center justify-center text-center text-white" style={{ backgroundImage: "url('https://source.unsplash.com/1600x900/?admin,technology')" }}>
-          <div className="bg-black bg-opacity-60 p-6 rounded-lg">
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <p className="mt-2 text-lg">Manage platform settings, users, and reports effectively.</p>
-          </div>
-        </div>
+        <DynamicBackground colors={["#f0f4ff", "#e0e7ff"]} />
         <div className=" p-4 md:p-12">
         <div id="User_Metrics"className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mt-4">
           {/* Total Registrations */}

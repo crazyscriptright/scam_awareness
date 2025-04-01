@@ -18,7 +18,7 @@ const BlockUnblockUser = () => {
 
     try {
       setLoading(true);
-      const response = await axios.put("http://localhost:5000/api/users/status", {
+      const response = await axios.put("/api/users/status", {
         identifier: identifier.toLowerCase(), // Convert to lowercase
         status,
       });

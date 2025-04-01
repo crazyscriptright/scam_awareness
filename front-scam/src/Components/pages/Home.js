@@ -2,11 +2,8 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
-import Profile from "../User/Profile";
-import scamAwarenessImg from "../../Img/scam-awareness.jpg";
-import hackingThreatImg from "../../Img/hacking-threat.jpg";
-import passwordSecurityImg from "../../Img/password-security.jpg";
-import ReportScam from "../User/ReportScam";
+import Profile from "../User/Profile"; // Ensure this file exists at ../User/Profile.js
+import ReportScam from "../User/ReportScam"; // Ensure this file exists at ../User/ReportScam.js
 import WhoWeAre from "./component/WhoWeAre";
 import WhatWeDo from "./component/WhatWeDo";
 import OurAchievements from "./component/OurAchievements";
@@ -14,6 +11,10 @@ import Header from "./component/Header";
 import ScamShield from "./component/ScamShield";
 import ScamTypesSection from "./component/ScamTypesSection";
 import PreventionTipsSection from "./component/PreventionTipsSection";
+import Footer from "../User/Footer";
+import DynamicBackground from "./component/DynamicBackground"
+import ArticleCarousel from "./component/ArticleCarousel"
+import ContactUs from "../User/ContactUs";
 import {
   FaTrophy,
   FaUsers,
@@ -32,7 +33,7 @@ import "./font.css";
 
 // Enhanced SVG Background Component
 const AnimatedBackground = () => (
-  <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+  <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
     <svg 
       className="w-full h-full" 
       viewBox="0 0 1000 1000" 
@@ -179,9 +180,10 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-gray-50 text-gray-900 font-sans antialiased relative overflow-hidden">
+    <div className="text-gray-900 font-sans antialiased relative overflow-hidden">
       {/* Animated Background */}
-      <AnimatedBackground />
+      <div>
+      <DynamicBackground />
       
       {/* Modern Navbar with Lusion-inspired styling */}
       <Navbar colors={colors} isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} />
@@ -192,202 +194,103 @@ const Home = () => {
       </div>
 
       {/* Hero Section */}
-      <ScamShield colors={colors} />
-      
+      <div id="home">
+        <ScamShield colors={colors} />
+      </div>
+
       {/* Who We Are */}
+      <div id="about">
       <WhoWeAre colors={colors} />
+      </div>
 
       {/* What We Do */}
-      <WhatWeDo colors={colors} />
+      <div id="services">
+        <WhatWeDo colors={colors} />
+      </div>
 
       {/* Achievements */}
-      <OurAchievements colors={colors} />
+      <div id="achievements">
+        <OurAchievements colors={colors} />
+      </div>
 
       {/* Types of Scams - Enhanced with Lusion card styling */}
-      <ScamTypesSection colors={colors} />
+      <div id="scam-types">
+        <ScamTypesSection colors={colors} />
+      </div>
 
       {/* Prevention Tips - Enhanced with gradient backgrounds */}
-      <PreventionTipsSection colors={colors} />
+      <div id="prevention-tips">
+        <PreventionTipsSection colors={colors} />
+      </div>
 
       {/* News & Articles Section - Enhanced with Lusion styling */}
-      <section className="py-20 bg-white relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="text-sm font-medium text-blue-500 tracking-widest mb-2">LATEST UPDATES</span>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">News & Articles</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Stay informed with the latest cybersecurity trends and scam alerts.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Article 1 */}
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="group overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="relative overflow-hidden h-60">
-                <img 
-                  src={scamAwarenessImg} 
-                  alt="Online Scams" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              </div>
-              <div className="p-6 bg-white">
-                <span className="text-xs font-medium text-blue-500">CYBER SECURITY</span>
-                <h3 className="text-xl font-bold text-gray-900 mt-2 mb-3">5 Common Online Scams & How to Avoid Them</h3>
-                <p className="text-gray-600 mb-4">
-                  Learn about phishing, fake job offers, and other cyber threats affecting users daily.
-                </p>
-                <a 
-                  href="https://www.scamwatch.gov.au/types-of-scams" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-500 font-medium group-hover:text-blue-600 transition-colors"
-                >
-                  Read Article
-                  <FaArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
-                </a>
-              </div>
-            </motion.div>
-            
-            {/* Article 2 */}
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="group overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="relative overflow-hidden h-60">
-                <img 
-                  src={hackingThreatImg} 
-                  alt="Hacking Threats" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              </div>
-              <div className="p-6 bg-white">
-                <span className="text-xs font-medium text-purple-500">DATA PROTECTION</span>
-                <h3 className="text-xl font-bold text-gray-900 mt-2 mb-3">How Hackers Steal Personal Data</h3>
-                <p className="text-gray-600 mb-4">
-                  Discover the latest techniques cybercriminals use to access sensitive information.
-                </p>
-                <a 
-                  href="https://www.cyber.gov.au/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-500 font-medium group-hover:text-blue-600 transition-colors"
-                >
-                  Read Article
-                  <FaArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
-                </a>
-              </div>
-            </motion.div>
-            
-            {/* Article 3 */}
-            <motion.div 
-              whileHover={{ y: -5 }}
-              className="group overflow-hidden rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="relative overflow-hidden h-60">
-                <img 
-                  src={passwordSecurityImg} 
-                  alt="Password Security" 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-              </div>
-              <div className="p-6 bg-white">
-                <span className="text-xs font-medium text-green-500">PRIVACY</span>
-                <h3 className="text-xl font-bold text-gray-900 mt-2 mb-3">Why Strong Passwords Are Essential</h3>
-                <p className="text-gray-600 mb-4">
-                  A weak password is a hacker's best friend. Find out how to secure your accounts.
-                </p>
-                <a 
-                  href="https://www.ncsc.gov.uk/collection/passwords" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center text-blue-500 font-medium group-hover:text-blue-600 transition-colors"
-                >
-                  Read Article
-                  <FaArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
-                </a>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      <div id="articles">
+      <ArticleCarousel colors={colors} />
+      </div>
 
       {/* Report a Scam Section - Enhanced with Lusion-inspired CTA */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold mb-6">Have You Encountered a Scam?</h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Your report can help protect others from falling victim to similar scams.
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center mx-auto"
-            onClick={() => setModalOpen(true)}
-          >
-            Report a Scam Now
-            <FaArrowRight className="ml-2" />
-          </motion.button>
+    <section id="report" className="relative py-24 text-gray-900 overflow-hidden z-10">
+      {/* /* Decorative elements (now subtle gray) */} 
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-0 left-0 w-32 h-32 bg-gray-300 rounded-full mix-blend-overlay transform -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-gray-300 rounded-full mix-blend-overlay transform translate-x-1/2 translate-y-1/2"></div>
         </div>
-      </section>
 
-      {/* Report Scam Modal */}
-      {modalOpen && <ReportScam isOpen={modalOpen} onClose={() => setModalOpen(false)} colors={colors} />}
-      
-      {/* Footer - Enhanced with Lusion styling */}
-      <footer className="py-12 bg-gray-900 text-gray-300">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="text-white text-lg font-bold mb-4">Scam Awareness</h3>
-              <p className="mb-4">
-                Empowering individuals with knowledge to combat digital fraud and cybercrime.
-              </p>
-              <div className="flex space-x-4">
-                {/* Social icons would go here */}
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-white text-lg font-bold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li><Link to="/" className="hover:text-white transition-colors">Home</Link></li>
-                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link to="/scam-types" className="hover:text-white transition-colors">Scam Types</Link></li>
-                <li><Link to="/prevention" className="hover:text-white transition-colors">Prevention</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white text-lg font-bold mb-4">Resources</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Glossary</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Statistics</a></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-white text-lg font-bold mb-4">Contact</h4>
-              <ul className="space-y-2">
-                <li>help@scamaware.org</li>
-                <li>+1 (800) 123-4567</li>
-                <li>24/7 Support Hotline</li>
-              </ul>
-            </div>
+        <div className="max-w-5xl mx-auto px-6 text-center relative">
+          <div className="mb-2">
+            <span className="inline-block px-4 py-2 bg-gray-100 backdrop-blur-sm rounded-full text-sm font-semibold tracking-wider text-gray-700">
+          SCAM ALERT
+            </span>
           </div>
           
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-            <p>© {new Date().getFullYear()} Scam Awareness Portal. All rights reserved.</p>
+          <h2 className="text-5xl font-bold mb-6 leading-tight">
+            Been <span className="text-blue-600">Scammed</span> or Spotted a Scam?
+          </h2>
+          
+          <p className="text-xl mb-10 text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Your report could protect hundreds of others from falling victim to the same scam. 
+            Together we can fight fraud.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <motion.button
+          whileHover={{ 
+            scale: 1.03,
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)"
+          }}
+          whileTap={{ scale: 0.98 }}
+          className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0"
+          onClick={() => setModalOpen(true)}
+            >
+          Report a Scam Now
+          <FaArrowRight className="ml-3 transition-transform group-hover:translate-x-1" />
+            </motion.button>
+            
+            <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
+          className="px-8 py-4 bg-transparent border-2 border-gray-300 hover:border-gray-400 text-gray-700 rounded-xl font-bold shadow hover:shadow-md transition-all duration-300 flex items-center justify-center mx-auto sm:mx-0"
+          onClick={() => window.location.href = '/AllArticlesPage'}
+            >
+          Learn How to Spot Scams
+            </motion.button>
+          </div>
+          
+          <div className="mt-12 flex justify-center">
+            <div className="flex items-center text-sm text-gray-500">
+          <FaShieldAlt className="mr-2 text-blue-500" />
+          <span>All reports are anonymous and confidential</span>
+            </div>
           </div>
         </div>
-      </footer>
+          </section>
+
+        {/* Report Scam Modal */}
+      {modalOpen && <ReportScam isOpen={modalOpen} onClose={() => setModalOpen(false)} colors={colors} />}
+        
+      </div>
+      {/* Footer */}
+      <Footer/>
     </div>
   );
 };

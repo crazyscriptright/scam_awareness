@@ -49,12 +49,12 @@
     "web-vitals": "^4.2.4"
   },
   "scripts": {
-    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "start": "concurrently \"node ../my-server/indexduplicate.js\" \"react-scripts start\"",
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
     "test": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts test",
     "eject": "react-scripts eject",
-    "start:server": "node E:/projects/Societal/new_scam_awarenss/my-server/indexduplicate.js",
-    "start:client": "npm start",
+    "start:server": "node ../my-server/indexduplicate.js",
+    "start:client": "react-scripts start",
     "start:dev": "concurrently \"npm run start:server\" \"npm run start:client\""
   },
   "eslintConfig": {
@@ -78,5 +78,4 @@
   "devDependencies": {
     "concurrently": "^9.1.2"
   }
-  
 }

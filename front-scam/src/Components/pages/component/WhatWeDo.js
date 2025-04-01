@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import WhatWeDoSvg from '../../../Img/what_we_do.svg';
+import { HashLink } from 'react-router-hash-link';
 
 function WhatWeDo() {
   const ref = useRef(null);
@@ -105,7 +106,7 @@ function WhatWeDo() {
             viewport={{ once: true, margin: "-100px" }}
           >
             <motion.a
-              href="#"
+              href="aboutus"
               className="inline-flex items-center bg-transparent border-2 border-blue-600 text-blue-600 px-8 py-3 rounded-full font-medium tracking-wider group"
               whileHover={{ 
                 backgroundColor: "#4F46E5",

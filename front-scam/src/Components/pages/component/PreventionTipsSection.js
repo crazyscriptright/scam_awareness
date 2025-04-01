@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FaLock, FaUsers, FaCheckCircle } from "react-icons/fa";
+import { HashLink } from "react-router-hash-link";
 
 const PreventionTipsSection = () => {
   const tips = [
@@ -189,12 +190,15 @@ const PreventionTipsSection = () => {
                 </ul>
                 
                 <div className="mt-6 pt-4 border-t border-gray-100">
-                  <button className={`text-sm font-medium ${tip.color} hover:opacity-80 transition-opacity flex items-center`}>
+                  <HashLink 
+                    to="/AllArticlesPage" 
+                    className={`text-sm font-medium ${tip.color} hover:opacity-80 transition-opacity flex items-center`}
+                  >
                     Learn more
                     <svg className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
                     </svg>
-                  </button>
+                  </HashLink>
                 </div>
                 
                 {/* Animated SVG */}

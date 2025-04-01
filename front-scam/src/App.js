@@ -7,10 +7,12 @@ import Home from './Components/pages/Home';
 import AdminHome from "./Components/Admin/AdminHome";
 import ExternalResourceHome from "./Components/ExternalResources/ExternalResourcesHome";
 import ReportScam from "./Components/User/ReportScam";
+import ExternalTable from "./Components/ExternalResources/ExternalTable";
+import DynamicBackground from "./Components/pages/component/DynamicBackground";
+import AllArticlesPage from "./Components/pages/AllArticlesPage";
+import AboutUs from "./Components/pages/aboutus";
 import ContactUs from "./Components/User/ContactUs";
-import ExternalTable from "./Components/ExternalResources/ExternalTable"
-import ScamAwarenessPage from "./Components/pages/ScamAwarenessPage,js"
-
+import ReportHistory from "./Components/User/reporthistory";
 const App = () => {
     return (
     <div>
@@ -25,7 +27,11 @@ const App = () => {
                 <Route path="/User/ReportScam" element={<ReportScam />}/>
                 <Route path='/ContactUs' element={<ContactUs />}/>
                 <Route path='/ExternalResources/ExternalTable' element={<ExternalTable />}/>
-                {/* <Route path='/ScamAwarenessPage' element={<ScamAwarenessPage />}/> */}
+                <Route path='/DynamicBackground' element={<DynamicBackground />}/>
+                <Route path='/AllArticlesPage' element={<AllArticlesPage />}/>
+                <Route path='/AboutUs' element={<AboutUs />}/>
+                <Route path='/Contact' element={<ContactUs />}/>
+                <Route path='/ReportHistory' element={<ReportHistory />}/>
             </Routes>
         </Router>
     </div>

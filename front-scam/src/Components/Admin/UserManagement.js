@@ -29,7 +29,7 @@ const UserManagement = () => {
 
     try {
       setCreateUserLoading(true);
-      const response = await axios.post("http://localhost:5000/api/create_external_user", {
+      const response = await axios.post("/api/create_external_user", {
         name,
         dob: dayjs(dob).format("YYYY-MM-DD"), // Format date
         email: email.toLowerCase(), // Convert email to lowercase
@@ -54,7 +54,7 @@ const UserManagement = () => {
 
     try {
       setBlockUnblockLoading(true);
-      const response = await axios.put("http://localhost:5000/api/users/status", {
+      const response = await axios.put("/api/users/status", {
         identifier: identifier.toLowerCase(), // Convert to lowercase
         status,
         description, // Optional description
