@@ -28,31 +28,22 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.connect((err, client, release) => {
-  if (err) {
-    return console.error("❌ Failed to connect to the database:", err.stack);
-  }
-  console.log("✅ Connected to PostgreSQL database");
-
-  client.query(`
-    SELECT table_name 
-    FROM information_schema.tables 
-    WHERE table_schema = 'public' 
-    AND table_type = 'BASE TABLE';
-  `, (err, result) => {
-    release(); // release the client back to the pool
-
-    if (err) {
-      return console.error("❌ Error fetching tables:", err.stack);
-    }
-
-    console.log("📦 Tables in the 'public' schema:");
-    result.rows.forEach(row => {
-      console.log(" -", row.table_name);
-    });
+pool.connect()
+  .then(client => {
+    return client
+      .query('SELECT NOW()')
+      .then(res => {
+        console.log("✅ PostgreSQL connected successfully at:", res.rows[0].now);
+        client.release();
+      })
+      .catch(err => {
+        client.release();
+        console.error("❌ Error executing test query:", err.stack);
+      });
+  })
+  .catch(err => {
+    console.error("❌ PostgreSQL connection failed:", err.stack);
   });
-});
-
 
 // Middleware
 app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
