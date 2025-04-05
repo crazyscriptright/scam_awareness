@@ -22,7 +22,7 @@ const Navbar = () => {
 
             <div className={`fixed inset-y-0 left-0 bg-gray-900 text-white w-64 z-50 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} transition-transform duration-300 ease-in-out`}>
                 <div className="p-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-center">Scam Shield</h1>
+                    <h1 className="text-3xl font-bold text-center">Scam Shield</h1>
                     <button className="text-white" onClick={toggleSidebar}>
                         <FaTimes className="w-6 h-6" />
                     </button>
@@ -124,7 +124,7 @@ const Navbar = () => {
                 <button className="text-white" onClick={toggleSidebar}>
                     <FaBars className="w-6 h-6" />
                 </button>
-                <h2 className="ml-4 text-xl font-bold">Scam Shield</h2>
+                <h2 className="ml-4 text-3xl font-bold">Scam Shield</h2>
             </div>
         </div>
     );

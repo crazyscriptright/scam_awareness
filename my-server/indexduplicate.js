@@ -28,8 +28,34 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error("❌ Failed to connect to the database:", err.stack);
+  }
+  console.log("✅ Connected to PostgreSQL database");
+
+  client.query(`
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public' 
+    AND table_type = 'BASE TABLE';
+  `, (err, result) => {
+    release(); // release the client back to the pool
+
+    if (err) {
+      return console.error("❌ Error fetching tables:", err.stack);
+    }
+
+    console.log("📦 Tables in the 'public' schema:");
+    result.rows.forEach(row => {
+      console.log(" -", row.table_name);
+    });
+  });
+});
+
+
 // Middleware
-app.use(cors({ origin: ["http://localhost:3000","https://a179-2409-4071-4e09-c817-d6a-c75d-2fd9-cbf4.ngrok-free.app"], credentials: true }));
+app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
 app.use(bodyParser.json({ limit: "15mb" })); // Adjust if needed
 app.use(bodyParser.urlencoded({ limit: "15mb", extended: true }));
 app.use(helmet());
@@ -141,7 +167,7 @@ app.post(
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
       await pool.query(
-        "INSERT INTO users (name, dob, email, password) VALUES ($1, $2, $3, $4)",
+        "INSERT INTO users(name, dob, email, password) VALUES ($1, $2, $3, $4)",
         [name, dob, email, hashedPassword]
       );
 
@@ -674,7 +700,7 @@ app.get("/api/contacts", async (req, res) => {
         message, 
         submitted_at, 
         attachment 
-      FROM contacts
+      FROM public.contacts
       ORDER BY submitted_at DESC;
     `);
 
