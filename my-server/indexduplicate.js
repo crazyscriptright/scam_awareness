@@ -8,7 +8,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const session = require("express-session");
 const compression = require("compression");
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const asyncHandler = require("express-async-handler");
 const pgSession = require("connect-pg-simple")(session);
 
