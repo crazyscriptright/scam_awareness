@@ -5,4 +5,4 @@ git add .
 git config --global user.email "crazyscriptright@gmail.com"
 git config --global user.name "ANIL SUNNY"
 git commit -m "Scheduled commit"
-git push origin main
+git push origin main --force
