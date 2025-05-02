@@ -2,3 +2,5 @@ my-server/.env
 front-scam/node_modules
 my-server/node_modules
 volunabilities.txt
+requirements.txt
+scheduled_commit.bat
