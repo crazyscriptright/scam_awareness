@@ -4,3 +4,4 @@ my-server/node_modules/
 volunabilities.txt
 requirements.txt
 scheduled_commit.bat
+.vscode/
