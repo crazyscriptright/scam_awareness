@@ -21,7 +21,7 @@ A comprehensive platform for reporting and managing scam incidents with three us
 
 - Node.js (v14+)
 - PostgreSQL (v13+)
-- npm or yarn
+- npm 
 
 ## Installation
 
@@ -68,7 +68,7 @@ npm install
 1. Start the backend server:
 ```bash
 cd my-server
-node indexduplicate.js
+node index.js
 ```
 
 2. Start the frontend development server:

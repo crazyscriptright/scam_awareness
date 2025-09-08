@@ -1,4 +1,5 @@
 my-server/.env
+front-scam/.env
 front-scam/node_modules/
 my-server/node_modules/
 volunabilities.txt
